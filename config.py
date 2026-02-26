@@ -11,18 +11,29 @@ def _fix_db_url(url):
         return url.replace('postgres://', 'postgresql://', 1)
     return url
 
+_raw_db_url = os.environ.get(
+    'DATABASE_URL',
+    f"sqlite:///{os.path.join(BASE_DIR, 'database', 'kya.db')}"
+)
+_db_url = _fix_db_url(_raw_db_url)
+_is_postgres = _db_url.startswith('postgresql')
+
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'kya-dev-secret-CHANGE-IN-PROD')
-
-    # Vercel/Neon/Supabase'de DATABASE_URL env var kullanılır, yoksa local SQLite
-    _db_url = os.environ.get('DATABASE_URL',
-                              f"sqlite:///{os.path.join(BASE_DIR, 'database', 'kya.db')}")
-    SQLALCHEMY_DATABASE_URI = _fix_db_url(_db_url)
+    SQLALCHEMY_DATABASE_URI = _db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_pre_ping': True,
-        'pool_recycle': 300,
-    }
+
+    # Vercel serverless → her istek yeni bağlantı açar, pool gerekmez
+    # SQLite local → varsayılan pool yeterli
+    if _is_postgres:
+        from sqlalchemy.pool import NullPool
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            'poolclass': NullPool,
+            'connect_args': {'sslmode': 'require'}
+            if 'sslmode' not in _db_url else {},
+        }
+    else:
+        SQLALCHEMY_ENGINE_OPTIONS = {'pool_pre_ping': True}
 
     # Dosya yükleme
     UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
@@ -34,9 +45,8 @@ class Config:
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'kya2024admin!')
 
     # Cloudinary (isteğe bağlı — Vercel'de dosya yüklemek için)
-    # Değer: "cloudinary://API_KEY:API_SECRET@CLOUD_NAME"
     CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', '')
 
-    # WTF CSRF (admin form koruması)
-    WTF_CSRF_TIME_LIMIT = 7200  # 2 saat
+    # WTF CSRF
+    WTF_CSRF_TIME_LIMIT = 7200
 

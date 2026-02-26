@@ -43,8 +43,9 @@ def admin_subdomain_redirect():
         path = request.path
         # /admin ile başlamıyorsa yönlendir
         if not path.startswith('/admin'):
-            target = '/admin' + ('login' if path == '/' else path)
-            return redirect(target, code=302)
+            if path == '/':
+                return redirect('/admin/login', code=302)
+            return redirect('/admin' + path, code=302)
 
 
 # ─────────────────────────────────────────
@@ -598,9 +599,16 @@ def init_db():
 
 
 # ─────────────────────────────────────────
-# Entry point
+# Uygulama başlangıcında DB kur
+# (Vercel serverless dahil her ortamda çalışır)
+# ─────────────────────────────────────────
+try:
+    init_db()
+except Exception as _init_err:
+    print(f'init_db uyarısı (göz ardı): {_init_err}')
+
+# ─────────────────────────────────────────
+# Entry point (lokal geliştirme)
 # ─────────────────────────────────────────
 if __name__ == '__main__':
-    with app.app_context():
-        init_db()
     app.run(debug=True, port=5000)
