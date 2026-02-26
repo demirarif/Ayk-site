@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Anasayfa — KYA Hukuk & Danışmanlık{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="page-hero">
+    <div class="page-hero__bg" style="background-image:url('{{ hero.image_url if hero else '' }}')"></div>
+    <div class="page-hero__overlay"></div>
+    <div class="page-hero__content">
+        {% if settings.logo_url %}
+        <img src="{{ settings.logo_url }}" alt="KYA Hukuk" class="page-hero__logo">
+        {% endif %}
+        <h1 class="page-hero__title">{{ hero.title if hero else 'KELEŞTEMUR | YİĞİT | ALTAY' }}</h1>
+        <div class="page-hero__subtitle">{{ hero.subtitle if hero else 'HUKUK VE DANIŞMANLIK' }}</div>
+    </div>
+</section>
+
+<!-- Kısa Tanıtım -->
+<section style="padding:60px 0; background:var(--off-white); border-bottom:1px solid var(--border);">
+    <div class="container" style="text-align:center; max-width:860px;">
+        <p style="font-size:1.1rem; color:#555; line-height:1.9;">
+            {{ settings.about_short or 'Keleştemur | Yiğit | Altay Hukuk ve Danışmanlık Ofisi, 2020 yılında Ankara\'da kurulmuştur. Yerli ve yabancı müvekkillerine ulusal ve uluslararası uyuşmazlık çözümünde hukuki danışmanlık ve avukatlık hizmeti vermektedir.' }}
+        </p>
+        <div style="display:flex; gap:20px; justify-content:center; margin-top:32px; flex-wrap:wrap;">
+            <a href="{{ url_for('hakkimizda') }}" class="btn-primary">Hakkımızda</a>
+            <a href="{{ url_for('iletisim') }}" class="btn-primary" style="background:transparent; border:2px solid var(--bordeaux); color:var(--bordeaux);">İletişim</a>
+        </div>
+    </div>
+</section>
+
+<!-- Öne Çıkan 3 Alan -->
+<section>
+    <div class="container">
+        <div class="section-header"><h2>Çalışma Alanlarımız</h2></div>
+        <div class="practice-grid">
+            {% for area in areas[:6] %}
+            <div class="practice-item">
+                <i class="{{ area.icon }}"></i>
+                <h3>{{ area.title }}</h3>
+                {% if area.description %}<p>{{ area.description }}</p>{% endif %}
+            </div>
+            {% else %}
+            <div class="practice-item"><i class="fas fa-gavel"></i><h3>Hukuki Danışmanlık</h3></div>
+            <div class="practice-item"><i class="fas fa-briefcase"></i><h3>Ticaret Hukuku</h3></div>
+            <div class="practice-item"><i class="fas fa-balance-scale"></i><h3>Uyuşmazlık Çözümü</h3></div>
+            {% endfor %}
+        </div>
+        <div style="text-align:center; margin-top:30px;">
+            <a href="{{ url_for('faaliyet') }}" class="btn-primary">Tüm Alanları Gör</a>
+        </div>
+    </div>
+</section>
+
+<!-- Son Makaleler -->
+{% if articles %}
+<section class="bg-light">
+    <div class="container">
+        <div class="section-header"><h2>Son Makaleler</h2></div>
+        <div class="article-grid">
+            {% for article in articles[:3] %}
+            <a href="{{ url_for('makale_detay', slug=article.slug) }}" class="article-card" style="color:inherit;">
+                {% if article.cover_url %}
+                <img src="{{ article.cover_url }}" alt="{{ article.title }}" class="article-card__cover">
+                {% else %}
+                <div class="article-card__cover-placeholder"><i class="fas fa-balance-scale"></i></div>
+                {% endif %}
+                <div class="article-card__body">
+                    <div class="article-card__date">{{ article.published_at.strftime('%d %B %Y') if article.published_at else '' }}</div>
+                    <h3>{{ article.title }}</h3>
+                    <p>{{ article.summary }}</p>
+                    <span class="read-more">Devamını Oku <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        <div style="text-align:center; margin-top:30px;">
+            <a href="{{ url_for('makaleler') }}" class="btn-primary">Tüm Makaleler</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Index sayfasında çalışma alanları ve makaleleri önceden yükle
+</script>
+{% endblock %}

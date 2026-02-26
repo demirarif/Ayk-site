@@ -1,0 +1,103 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{{ 'Makale Düzenle' if article else 'Yeni Makale' }}{% endblock %}
+{% block page_title %}{{ 'Makale Düzenle' if article else 'Yeni Makale' }}{% endblock %}
+
+{% block head %}
+<!-- SimpleMDE rich text editor -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simplemde/dist/simplemde.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:820px;">
+  <div class="card-header">
+    <h2><i class="fa-solid fa-file-pen"></i> {{ 'Makale Düzenle' if article else 'Yeni Makale Yaz' }}</h2>
+    <a href="{{ url_for('admin_articles') }}" class="btn btn-ghost btn-sm">
+      <i class="fa-solid fa-arrow-left"></i> Geri
+    </a>
+  </div>
+
+  <form method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="form-row">
+      <label>Makale Başlığı <span style="color:red">*</span></label>
+      <input type="text" name="title" id="title" required value="{{ article.title if article else '' }}" placeholder="Makale başlığı girin...">
+    </div>
+
+    <div class="form-row">
+      <label>Özet</label>
+      <textarea name="summary" rows="2" placeholder="Makale özeti (liste sayfasında gösterilir)...">{{ article.summary if article else '' }}</textarea>
+    </div>
+
+    <div class="form-row">
+      <label>İçerik <span style="color:red">*</span></label>
+      <textarea id="content-editor" name="content">{{ article.content if article else '' }}</textarea>
+    </div>
+
+    <div class="form-cols">
+      <div class="form-row">
+        <label>Yazar</label>
+        <input type="text" name="author" value="{{ article.author if article else '' }}" placeholder="Av. Ad Soyad">
+      </div>
+      <div class="form-row">
+        <label>Slug (URL)</label>
+        <input type="text" name="slug" id="slug-field" value="{{ article.slug if article else '' }}" placeholder="otomatik-olusturulur">
+        <p class="hint">Boş bırakırsanız otomatik oluşturulur</p>
+      </div>
+    </div>
+
+    <div class="form-cols">
+      <div class="form-row">
+        <label>Kapak Görseli Yükle</label>
+        <input type="file" name="cover" accept="image/*">
+        {% if article and article.cover_url %}
+          <img src="{{ article.cover_url }}" class="img-preview-wide" alt="kapak">
+        {% endif %}
+        <p class="hint">Max 8MB — JPG, PNG, WEBP</p>
+      </div>
+      <div class="form-row">
+        <label>Kapak Görseli URL (harici)</label>
+        <input type="url" name="cover_url_ext" value="{{ article.cover_url if article else '' }}" placeholder="https://...">
+        <p class="hint">Dosya yüklenmezse bu URL kullanılır</p>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>
+        <input type="checkbox" name="is_published" value="1" {{ 'checked' if (article and article.is_published) }}>
+        Yayınla (siteye göster)
+      </label>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:8px;">
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-floppy-disk"></i> Kaydet
+      </button>
+      <a href="{{ url_for('admin_articles') }}" class="btn btn-ghost">İptal</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/simplemde/dist/simplemde.min.js"></script>
+<script>
+var simplemde = new SimpleMDE({
+  element: document.getElementById('content-editor'),
+  spellChecker: false,
+  placeholder: 'Makale içeriğini buraya yazın... Markdown desteklenmektedir.',
+  toolbar: ['bold','italic','heading','|','quote','unordered-list','ordered-list','|','link','image','|','preview','side-by-side','fullscreen','|','guide']
+});
+
+// Auto-slug from title
+document.getElementById('title').addEventListener('input', function() {
+  var slugField = document.getElementById('slug-field');
+  if (!slugField.dataset.manual) {
+    slugField.value = ''; // will be auto-generated server-side
+  }
+});
+document.getElementById('slug-field').addEventListener('input', function() {
+  this.dataset.manual = true;
+});
+</script>
+{% endblock %}

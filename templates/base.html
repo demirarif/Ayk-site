@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}KYA Hukuk & Danışmanlık{% endblock %}</title>
+    <meta name="description" content="{% block meta_desc %}Keleştemur | Yiğit | Altay Hukuk ve Danışmanlık Ofisi — Ankara{% endblock %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Flash mesajları -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages" id="flashMessages">
+            {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Header -->
+    <header>
+        <nav class="navbar">
+            <a href="{{ url_for('index') }}" class="logo">
+                {% if settings.logo_url %}
+                <img src="{{ settings.logo_url }}" alt="KYA Hukuk">
+                {% else %}
+                <span style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;letter-spacing:2px;">KYA</span>
+                {% endif %}
+            </a>
+            <button class="nav-toggle" id="navToggle" aria-label="Menü">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="{{ url_for('index') }}"      {% if request.endpoint == 'index'      %}class="active"{% endif %}>Anasayfa</a></li>
+                <li><a href="{{ url_for('hakkimizda') }}" {% if request.endpoint == 'hakkimizda' %}class="active"{% endif %}>Hakkımızda</a></li>
+                <li><a href="{{ url_for('ekibimiz') }}"   {% if request.endpoint == 'ekibimiz'   %}class="active"{% endif %}>Ekibimiz</a></li>
+                <li><a href="{{ url_for('faaliyet') }}"   {% if request.endpoint == 'faaliyet'   %}class="active"{% endif %}>Çalışma Alanları</a></li>
+                <li><a href="{{ url_for('makaleler') }}"  {% if request.endpoint in ['makaleler','makale_detay'] %}class="active"{% endif %}>Makaleler</a></li>
+                <li><a href="{{ url_for('iletisim') }}"   {% if request.endpoint == 'iletisim'   %}class="active"{% endif %}>İletişim</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- İçerik -->
+    {% block content %}{% endblock %}
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-inner">
+            <div class="footer-brand">KELEŞTEMUR | YİĞİT | ALTAY</div>
+            <div class="footer-contacts">
+                {% if settings.contact_address %}
+                <p><i class="fas fa-map-marker-alt"></i> {{ settings.contact_address }}</p>
+                {% endif %}
+                {% if settings.contact_phone %}
+                <p><i class="fas fa-phone-alt"></i> {{ settings.contact_phone }}</p>
+                {% endif %}
+                {% if settings.contact_email %}
+                <p><i class="fas fa-envelope"></i> {{ settings.contact_email }}</p>
+                {% endif %}
+            </div>
+            <div class="footer-copy">
+                {{ settings.footer_text or '© 2026 KYA Hukuk ve Danışmanlık. Tüm hakları saklıdır.' }}
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobil menü
+        const toggle = document.getElementById('navToggle');
+        const links  = document.getElementById('navLinks');
+        if (toggle) toggle.addEventListener('click', () => links.classList.toggle('open'));
+
+        // Flash mesajlarını otomatik kapat
+        setTimeout(() => {
+            const fm = document.getElementById('flashMessages');
+            if (fm) fm.style.opacity = '0', fm.style.transition = 'opacity .5s', setTimeout(() => fm.remove(), 500);
+        }, 4000);
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

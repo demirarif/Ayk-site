@@ -1,0 +1,76 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Site Ayarları{% endblock %}
+{% block page_title %}Site Ayarları{% endblock %}
+
+{% block content %}
+<form method="POST" action="{{ url_for('admin_settings') }}" enctype="multipart/form-data" style="max-width:820px;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <!-- İletişim Bilgileri -->
+  <div class="card">
+    <div class="card-header"><h2><i class="fa-solid fa-address-book"></i> İletişim Bilgileri</h2></div>
+    <div class="form-cols">
+      <div class="form-row">
+        <label>Adres</label>
+        <textarea name="contact_address" rows="2">{{ settings.get('contact_address','') }}</textarea>
+      </div>
+      <div class="form-row">
+        <label>Çalışma Saatleri</label>
+        <textarea name="contact_hours" rows="2">{{ settings.get('contact_hours','') }}</textarea>
+      </div>
+    </div>
+    <div class="form-cols">
+      <div class="form-row">
+        <label>Telefon</label>
+        <input type="text" name="contact_phone" value="{{ settings.get('contact_phone','') }}" placeholder="+90 312 000 00 00">
+      </div>
+      <div class="form-row">
+        <label>E-posta</label>
+        <input type="email" name="contact_email" value="{{ settings.get('contact_email','') }}" placeholder="info@kyahukuk.com">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Google Maps Embed Kodu</label>
+      <textarea name="google_maps_embed" rows="3" placeholder='&lt;iframe src="https://maps.google.com/..." ...&gt;&lt;/iframe&gt;'>{{ settings.get('google_maps_embed','') }}</textarea>
+      <p class="hint">Google Maps → Paylaş → Haritayı göm → HTML kodunu yapıştırın</p>
+    </div>
+  </div>
+
+  <!-- Hakkımızda -->
+  <div class="card">
+    <div class="card-header"><h2><i class="fa-solid fa-circle-info"></i> Hakkımızda (Kısa)</h2></div>
+    <div class="form-row">
+      <label>Kısa Tanıtım Metni (Anasayfa)</label>
+      <textarea name="about_short" rows="3">{{ settings.get('about_short','') }}</textarea>
+    </div>
+  </div>
+
+  <!-- Logo & Footer -->
+  <div class="card">
+    <div class="card-header"><h2><i class="fa-solid fa-palette"></i> Logo & Footer</h2></div>
+    <div class="form-cols">
+      <div class="form-row">
+        <label>Logo Yükle</label>
+        <input type="file" name="logo_file" accept="image/*">
+        {% if settings.get('logo_url') %}
+          <img src="{{ settings.get('logo_url') }}" class="img-preview" alt="logo">
+        {% endif %}
+        <p class="hint">PNG transparan tavsiye edilir</p>
+      </div>
+      <div class="form-row">
+        <label>Logo URL (harici)</label>
+        <input type="url" name="logo_url" value="{{ settings.get('logo_url','') }}" placeholder="https://...">
+        <p class="hint">Dosya yüklenmezse bu URL kullanılır</p>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Footer Metni</label>
+      <input type="text" name="footer_text" value="{{ settings.get('footer_text','') }}" placeholder="© 2024 KYA Hukuk Danışmanlık">
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary">
+    <i class="fa-solid fa-floppy-disk"></i> Tüm Ayarları Kaydet
+  </button>
+</form>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{{ 'Üye Düzenle' if member else 'Yeni Üye' }}{% endblock %}
+{% block page_title %}{{ 'Ekip Üyesi Düzenle' if member else 'Yeni Ekip Üyesi' }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:700px;">
+  <div class="card-header">
+    <h2><i class="fa-solid fa-user-tie"></i> {{ 'Üye Bilgilerini Düzenle' if member else 'Yeni Üye Ekle' }}</h2>
+    <a href="{{ url_for('admin_team') }}" class="btn btn-ghost btn-sm">
+      <i class="fa-solid fa-arrow-left"></i> Geri
+    </a>
+  </div>
+
+  <form method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="form-cols">
+      <div class="form-row">
+        <label>Ad Soyad <span style="color:red">*</span></label>
+        <input type="text" name="name" required value="{{ member.name if member else '' }}" placeholder="Ahmet Yılmaz">
+      </div>
+      <div class="form-row">
+        <label>Ünvan / Rol</label>
+        <input type="text" name="role" value="{{ member.role if member else '' }}" placeholder="Av. / Ortak / Danışman">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>Biyografi</label>
+      <textarea name="bio" rows="4" placeholder="Kısa biyografi...">{{ member.bio if member else '' }}</textarea>
+    </div>
+
+    <div class="form-cols">
+      <div class="form-row">
+        <label>Fotoğraf Yükle</label>
+        <input type="file" name="photo" accept="image/*">
+        {% if member and member.photo_url %}
+          <img src="{{ member.photo_url }}" class="img-preview" alt="mevcut fotoğraf">
+        {% endif %}
+        <p class="hint">Max 8MB — JPG, PNG, WEBP</p>
+      </div>
+      <div class="form-row">
+        <label>Fotoğraf URL'si (harici)</label>
+        <input type="url" name="photo_url_ext" value="{{ member.photo_url if member else '' }}" placeholder="https://...">
+        <p class="hint">Dosya yüklenmezse bu URL kullanılır</p>
+      </div>
+    </div>
+
+    <div class="form-cols">
+      <div class="form-row">
+        <label>LinkedIn URL</label>
+        <input type="url" name="linkedin_url" value="{{ member.linkedin_url if member else '' }}" placeholder="https://linkedin.com/in/...">
+      </div>
+      <div class="form-row">
+        <label>Sıra No</label>
+        <input type="number" name="order_index" value="{{ member.order_index if member else 0 }}" min="0">
+        <p class="hint">Küçük = önce gösterilir</p>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>
+        <input type="checkbox" name="is_active" value="1" {{ 'checked' if (not member or member.is_active) }}>
+        Aktif (sitede görünsün)
+      </label>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:8px;">
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-floppy-disk"></i> Kaydet
+      </button>
+      <a href="{{ url_for('admin_team') }}" class="btn btn-ghost">İptal</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

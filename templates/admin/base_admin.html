@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Yönetim Paneli{% endblock %} — KYA Hukuk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% block head %}{% endblock %}
+</head>
+<body>
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <a href="{{ url_for('admin_dashboard') }}">
+        <i class="fa-solid fa-scale-balanced"></i>
+        <span>KYA Hukuk<small>Yönetim Paneli</small></span>
+      </a>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Genel</div>
+      <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if request.endpoint == 'admin_dashboard' }}">
+        <i class="fa-solid fa-gauge"></i> Dashboard
+      </a>
+
+      <div class="sidebar-section">İçerik</div>
+      <a href="{{ url_for('admin_team') }}" class="{{ 'active' if request.endpoint in ['admin_team','admin_team_new','admin_team_edit'] }}">
+        <i class="fa-solid fa-users"></i> Ekip Yönetimi
+      </a>
+      <a href="{{ url_for('admin_articles') }}" class="{{ 'active' if request.endpoint in ['admin_articles','admin_article_new','admin_article_edit'] }}">
+        <i class="fa-solid fa-newspaper"></i> Makaleler
+      </a>
+      <a href="{{ url_for('admin_areas') }}" class="{{ 'active' if request.endpoint == 'admin_areas' }}">
+        <i class="fa-solid fa-briefcase"></i> Çalışma Alanları
+      </a>
+
+      <div class="sidebar-section">Görünüm</div>
+      <a href="{{ url_for('admin_hero') }}" class="{{ 'active' if request.endpoint == 'admin_hero' }}">
+        <i class="fa-solid fa-image"></i> Hero Görselleri
+      </a>
+      <a href="{{ url_for('admin_settings') }}" class="{{ 'active' if request.endpoint == 'admin_settings' }}">
+        <i class="fa-solid fa-gear"></i> Site Ayarları
+      </a>
+
+      <div class="sidebar-section">Hesap</div>
+      <a href="{{ url_for('admin_change_password') }}" class="{{ 'active' if request.endpoint == 'admin_change_password' }}">
+        <i class="fa-solid fa-key"></i> Şifre Değiştir
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="{{ url_for('index') }}" target="_blank">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i> Siteyi Görüntüle
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <h1>{% block page_title %}{% endblock %}</h1>
+      <div class="topbar-actions">
+        <span class="topbar-user"><i class="fa-solid fa-user-tie"></i> {{ current_user.username }}</span>
+        <a href="{{ url_for('admin_logout') }}" class="btn btn-ghost btn-sm">
+          <i class="fa-solid fa-right-from-bracket"></i> Çıkış
+        </a>
+      </div>
+    </div>
+
+    <div class="admin-content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+          <div class="alert alert-{{ 'success' if cat == 'success' else 'error' if cat == 'error' else 'info' }}">
+            {{ msg }}
+          </div>
+        {% endfor %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+<script>
+// Mobile sidebar toggle (ileride hamburger butona bağlanır)
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

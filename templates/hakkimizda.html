@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Hakkımızda — KYA Hukuk & Danışmanlık{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="page-hero__bg" style="background-image:url('{{ hero.image_url if hero else 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?w=1600&q=80' }}')"></div>
+    <div class="page-hero__overlay"></div>
+    <div class="page-hero__content">
+        <h1 class="page-hero__title">{{ hero.title if hero else 'Hakkımızda' }}</h1>
+        <div class="page-hero__subtitle">{{ hero.subtitle if hero else 'Hukukun Üstünlüğü ve Adalet İçin Buradayız' }}</div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <div class="about-wrap">
+            <div class="about-text">
+                <h3>Profesyonel Çözüm Ortağınız</h3>
+                <p>Keleştemur | Yiğit | Altay Hukuk ve Danışmanlık Ofisi, 2020 yılında Av. Mehmet Emre Yiğit, Av. Tevfik Keleştemur ve Av. Direnç Onat Altay tarafından Ankara'da kurulmuştur. KYA Hukuk ve Danışmanlık Ofisi, merkezinin Ankara'da olmasının yanında İstanbul, İzmir, Kayseri gibi Türkiye'nin önemli ticari kentlerinde müvekkillerine Türkçe, İngilizce ve Rusça dillerinde hizmet vermektedir.</p>
+                <p>Genç ve dinamik kadrosuyla müvekkillerine yenilikçi bir hizmet sunan KYA Hukuk ve Danışmanlık Ofisi, icra hukuku, ticari işletme hukuku, şirketler hukuku, kıymetli evrak hukuku, bankacılık hukuku, iş hukuku, vergi hukuku, sigorta hukuku, sağlık hukuku, sözleşmeler hukuku, fikri mülkiyet hukuku, kişisel verilerin korunması hukuku, idare hukuku başta olmak üzere müvekkillerine birçok alanda ulusal ve uluslararası uyuşmazlık çözümünde hukuki danışmanlık ve avukatlık hizmeti vermektedir.</p>
+                <p>KYA Hukuk ve Danışmanlık Ofisi, hizmetlerini müvekkillerinin değişen ihtiyaçlarına uygun olarak geliştirmeyi, müvekkillerine yenilikçi ve kaliteli hizmetler sunmayı misyon edinmiştir. KYA tüm mesleki faaliyetlerini adil, özgür ve demokratik bir toplum düzenine kavuşma saikine odaklamıştır.</p>
+            </div>
+            <div class="about-visual">
+                <img src="https://images.unsplash.com/photo-1505664194779-8beaceb93744?w=900&q=80" alt="Ofisimiz">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Değerlerimiz -->
+<section class="bg-light">
+    <div class="container">
+        <div class="section-header"><h2>Değerlerimiz</h2></div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:36px;">
+            <div style="text-align:center; padding:30px 20px;">
+                <i class="fas fa-balance-scale" style="font-size:2.5rem; color:var(--bordeaux); margin-bottom:16px; display:block;"></i>
+                <h3 style="margin-bottom:10px; font-size:1.2rem;">Adalet</h3>
+                <p style="color:#666; font-size:.93rem;">Her müvekkile eşit, tarafsız ve hukuka uygun yaklaşım temel ilkemizdir.</p>
+            </div>
+            <div style="text-align:center; padding:30px 20px;">
+                <i class="fas fa-handshake" style="font-size:2.5rem; color:var(--bordeaux); margin-bottom:16px; display:block;"></i>
+                <h3 style="margin-bottom:10px; font-size:1.2rem;">Güven</h3>
+                <p style="color:#666; font-size:.93rem;">Müvekkillerimizle güvene dayalı, şeffaf ve uzun soluklu ilişkiler kuruyoruz.</p>
+            </div>
+            <div style="text-align:center; padding:30px 20px;">
+                <i class="fas fa-lightbulb" style="font-size:2.5rem; color:var(--bordeaux); margin-bottom:16px; display:block;"></i>
+                <h3 style="margin-bottom:10px; font-size:1.2rem;">Yenilik</h3>
+                <p style="color:#666; font-size:.93rem;">Dinamik ve yenilikçi yaklaşımımızla müvekkillerimize rekabetçi çözümler sunuyoruz.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

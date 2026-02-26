@@ -1,0 +1,49 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Çalışma Alanları{% endblock %}
+{% block page_title %}Çalışma Alanları{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:820px;">
+  <div class="card-header">
+    <h2><i class="fa-solid fa-briefcase"></i> Çalışma Alanları</h2>
+  </div>
+  <p style="color:#718096;font-size:.88rem;margin-bottom:20px;">
+    Aşağıdaki alanlarda değişiklik yapıp <strong>Kaydet</strong> butonuna basın.
+    Font Awesome 6 ikon sınıfı kullanın (örn: <code>fa-solid fa-balance-scale</code>).
+  </p>
+
+  <form method="POST" action="{{ url_for('admin_areas_save') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    {% for area in areas %}
+    <input type="hidden" name="area_id[]" value="{{ area.id }}">
+    <div style="background:var(--off-white);border-radius:8px;padding:16px;margin-bottom:14px;border:1px solid var(--border);">
+      <div class="form-cols">
+        <div class="form-row">
+          <label>Başlık</label>
+          <input type="text" name="title[]" value="{{ area.title }}" placeholder="Ceza Hukuku">
+        </div>
+        <div class="form-row">
+          <label>İkon (Font Awesome sınıfı)</label>
+          <input type="text" name="icon[]" value="{{ area.icon or '' }}" placeholder="fa-solid fa-gavel">
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Açıklama</label>
+        <textarea name="desc[]" rows="2">{{ area.description or '' }}</textarea>
+      </div>
+      <div class="form-row">
+        <label>
+          <input type="checkbox" name="active_{{ area.id }}" value="1" {{ 'checked' if area.is_active }}>
+          Aktif (sitede görünsün)
+        </label>
+      </div>
+    </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary">
+      <i class="fa-solid fa-floppy-disk"></i> Tüm Değişiklikleri Kaydet
+    </button>
+  </form>
+</div>
+{% endblock %}

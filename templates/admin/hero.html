@@ -1,0 +1,56 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Hero Görselleri{% endblock %}
+{% block page_title %}Hero Görselleri{% endblock %}
+
+{% block content %}
+<p style="color:#718096;font-size:.88rem;margin-bottom:20px;">
+  Her sayfa için üst bölüm (hero) başlığını, alt yazısını ve görselini güncelleyin.
+</p>
+
+{% for page_key, page_name in pages %}
+{% set h = heroes.get(page_key) %}
+<div class="card" style="max-width:820px;">
+  <div class="card-header">
+    <h2>
+      <i class="fa-solid fa-image"></i> {{ page_name }}
+    </h2>
+  </div>
+
+  <form method="POST" action="{{ url_for('admin_hero_save') }}" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="page" value="{{ page_key }}">
+
+    <div class="form-cols">
+      <div class="form-row">
+        <label>Başlık</label>
+        <input type="text" name="title" value="{{ h.title if h else '' }}" placeholder="Sayfa başlığı">
+      </div>
+      <div class="form-row">
+        <label>Alt Yazı</label>
+        <input type="text" name="subtitle" value="{{ h.subtitle if h else '' }}" placeholder="Kısa açıklama">
+      </div>
+    </div>
+
+    <div class="form-cols">
+      <div class="form-row">
+        <label>Görsel Yükle</label>
+        <input type="file" name="image" accept="image/*">
+        {% if h and h.image_url %}
+          <img src="{{ h.image_url }}" class="img-preview-wide" alt="{{ page_key }} hero">
+        {% endif %}
+        <p class="hint">Max 8MB — JPG, PNG, WEBP (geniş yatay görsel önerilir)</p>
+      </div>
+      <div class="form-row">
+        <label>Görsel URL (harici / Unsplash)</label>
+        <input type="url" name="image_url_ext" value="{{ h.image_url if h else '' }}" placeholder="https://images.unsplash.com/...">
+        <p class="hint">Dosya yüklenmezse bu URL kullanılır</p>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-sm">
+      <i class="fa-solid fa-floppy-disk"></i> Bu Sayfayı Kaydet
+    </button>
+  </form>
+</div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+.Python
+env/
+venv/
+.venv/
+.env
+*.egg-info/
+dist/
+build/
+
+# Veritabanı (local SQLite)
+database/kya.db
+database/*.db
+*.db
+
+# Yüklemeler (local uploads)
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Vercel
+.vercel/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

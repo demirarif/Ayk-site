@@ -1,0 +1,94 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon red"><i class="fa-solid fa-users"></i></div>
+    <div>
+      <div class="stat-label">Aktif Ekip Üyesi</div>
+      <div class="stat-value">{{ stats.team }}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon blue"><i class="fa-solid fa-newspaper"></i></div>
+    <div>
+      <div class="stat-label">Yayındaki Makale</div>
+      <div class="stat-value">{{ stats.articles }}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green"><i class="fa-solid fa-file-pen"></i></div>
+    <div>
+      <div class="stat-label">Taslak Makale</div>
+      <div class="stat-value">{{ stats.drafts }}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon orange"><i class="fa-solid fa-briefcase"></i></div>
+    <div>
+      <div class="stat-label">Çalışma Alanı</div>
+      <div class="stat-value">{{ stats.areas }}</div>
+    </div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+  <!-- Son Makaleler -->
+  <div class="card">
+    <div class="card-header">
+      <h2><i class="fa-solid fa-newspaper"></i> Son Makaleler</h2>
+      <a href="{{ url_for('admin_article_new') }}" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-plus"></i> Yeni
+      </a>
+    </div>
+    {% if recent_articles %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Başlık</th><th>Durum</th><th></th></tr></thead>
+        <tbody>
+          {% for a in recent_articles %}
+          <tr>
+            <td>{{ a.title }}</td>
+            <td>
+              {% if a.is_published %}
+                <span class="badge badge-green">Yayında</span>
+              {% else %}
+                <span class="badge badge-grey">Taslak</span>
+              {% endif %}
+            </td>
+            <td><a href="{{ url_for('admin_article_edit', aid=a.id) }}" class="btn btn-ghost btn-sm"><i class="fa-solid fa-pen"></i></a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p style="color:#718096;font-size:.88rem;">Henüz makale yok.</p>
+    {% endif %}
+  </div>
+
+  <!-- Hızlı Erişim -->
+  <div class="card">
+    <div class="card-header"><h2><i class="fa-solid fa-bolt"></i> Hızlı Erişim</h2></div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <a href="{{ url_for('admin_team_new') }}" class="btn btn-secondary">
+        <i class="fa-solid fa-user-plus"></i> Yeni Ekip Üyesi Ekle
+      </a>
+      <a href="{{ url_for('admin_article_new') }}" class="btn btn-secondary">
+        <i class="fa-solid fa-file-pen"></i> Yeni Makale Yaz
+      </a>
+      <a href="{{ url_for('admin_hero') }}" class="btn btn-secondary">
+        <i class="fa-solid fa-image"></i> Hero Görsellerini Düzenle
+      </a>
+      <a href="{{ url_for('admin_settings') }}" class="btn btn-secondary">
+        <i class="fa-solid fa-gear"></i> Site Ayarları
+      </a>
+      <a href="{{ url_for('index') }}" target="_blank" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i> Siteyi Görüntüle
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

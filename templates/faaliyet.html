@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Çalışma Alanları — KYA Hukuk & Danışmanlık{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="page-hero__bg" style="background-image:url('{{ hero.image_url if hero else 'https://images.unsplash.com/photo-1589994965851-a8f479c573a9?w=1600&q=80' }}')"></div>
+    <div class="page-hero__overlay"></div>
+    <div class="page-hero__content">
+        <h1 class="page-hero__title">{{ hero.title if hero else 'Çalışma Alanları' }}</h1>
+        <div class="page-hero__subtitle">{{ hero.subtitle if hero else 'Başlıca Uzmanlık Alanlarımız' }}</div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <div class="section-header">
+            <h2>Çalışma Alanları</h2>
+            <p>Genç ve dinamik kadrosuyla müvekkillerine yenilikçi bir hizmet sunan KYA Hukuk ve Danışmanlık Ofisi, ticari işletme hukuku, şirketler hukuku, kıymetli evrak hukuku, sigorta hukuku, sağlık hukuku ve daha birçok alanda ulusal ve uluslararası uyuşmazlık çözümünde hizmet vermektedir.</p>
+        </div>
+
+        <div class="practice-grid">
+            {% for area in areas %}
+            <div class="practice-item">
+                <i class="{{ area.icon }}"></i>
+                <h3>{{ area.title }}</h3>
+                {% if area.description %}<p>{{ area.description }}</p>{% endif %}
+            </div>
+            {% else %}
+            <div class="practice-item"><i class="fas fa-gavel"></i><h3>Hukuki Danışmanlık</h3></div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="bg-light">
+    <div class="container" style="text-align:center; max-width:700px;">
+        <h2 style="margin-bottom:16px;">Hukuki Destek Almak İster Misiniz?</h2>
+        <p style="color:#666; margin-bottom:28px;">Uzman avukat kadromuzla randevu almak veya bilgi talep etmek için bizimle iletişime geçin.</p>
+        <a href="{{ url_for('iletisim') }}" class="btn-primary">İletişime Geç</a>
+    </div>
+</section>
+{% endblock %}

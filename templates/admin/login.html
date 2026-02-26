@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giriş — KYA Yönetim Paneli</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #f0f2f8; }
+.login-box { background: #fff; border-radius: 12px; box-shadow: 0 4px 28px rgba(0,0,0,.1); padding: 44px 40px; width: 380px; max-width: 95vw; }
+.login-brand { text-align: center; margin-bottom: 30px; }
+.login-brand h1 { font-family: 'Playfair Display', serif; color: #800020; font-size: 1.6rem; }
+.login-brand p { color: #718096; font-size: .85rem; margin-top: 4px; }
+.login-box .form-row label { font-size: .83rem; }
+.login-btn { width: 100%; justify-content: center; padding: 12px; font-size: .92rem; margin-top: 8px; }
+.login-site { display: block; text-align: center; margin-top: 16px; font-size: .8rem; color: #718096; }
+.login-site:hover { color: #800020; }
+</style>
+</head>
+<body>
+<div class="login-box">
+  <div class="login-brand">
+    <h1><i class="fa-solid fa-scale-balanced"></i> KYA Hukuk</h1>
+    <p>Yönetim Paneli Girişi</p>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="alert alert-{{ 'success' if cat == 'success' else 'error' if cat == 'error' else 'info' }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form method="POST" action="{{ url_for('admin_login') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-row">
+      <label><i class="fa-solid fa-user"></i> Kullanıcı Adı</label>
+      <input type="text" name="username" required autofocus placeholder="Kullanıcı adınız">
+    </div>
+    <div class="form-row">
+      <label><i class="fa-solid fa-lock"></i> Şifre</label>
+      <input type="password" name="password" required placeholder="Şifreniz">
+    </div>
+    <button type="submit" class="btn btn-primary login-btn">
+      <i class="fa-solid fa-right-to-bracket"></i> Giriş Yap
+    </button>
+  </form>
+  <a href="{{ url_for('index') }}" class="login-site">← Siteye dön</a>
+</div>
+</body>
+</html>

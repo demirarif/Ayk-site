@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Makaleler — KYA Hukuk & Danışmanlık{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="page-hero__bg" style="background-image:url('{{ hero.image_url if hero else 'https://images.unsplash.com/photo-1456324504439-367cee3b3c32?w=1600&q=80' }}')"></div>
+    <div class="page-hero__overlay"></div>
+    <div class="page-hero__content">
+        <h1 class="page-hero__title">{{ hero.title if hero else 'Makaleler' }}</h1>
+        <div class="page-hero__subtitle">{{ hero.subtitle if hero else 'Hukuki Bilgi Köşesi' }}</div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        {% if articles %}
+        <div class="article-grid">
+            {% for article in articles %}
+            <a href="{{ url_for('makale_detay', slug=article.slug) }}" class="article-card" style="color:inherit;">
+                {% if article.cover_url %}
+                <img src="{{ article.cover_url }}" alt="{{ article.title }}" class="article-card__cover">
+                {% else %}
+                <div class="article-card__cover-placeholder"><i class="fas fa-balance-scale"></i></div>
+                {% endif %}
+                <div class="article-card__body">
+                    <div class="article-card__date">
+                        {{ article.published_at.strftime('%d %B %Y') if article.published_at else '—' }}
+                        {% if article.author %} · {{ article.author }}{% endif %}
+                    </div>
+                    <h3>{{ article.title }}</h3>
+                    <p>{{ article.summary }}</p>
+                    <span class="read-more">Devamını Oku <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align:center; padding:60px 0; color:#999;">
+            <i class="fas fa-book-open" style="font-size:3rem; margin-bottom:16px; display:block;"></i>
+            <p>Henüz yayınlanmış makale bulunmuyor.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

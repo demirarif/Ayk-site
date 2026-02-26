@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}İletişim — KYA Hukuk & Danışmanlık{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="page-hero__bg" style="background-image:url('{{ hero.image_url if hero else 'https://images.unsplash.com/photo-1497366412874-3415097a27e7?w=1600&q=80' }}')"></div>
+    <div class="page-hero__overlay"></div>
+    <div class="page-hero__content">
+        <h1 class="page-hero__title">{{ hero.title if hero else 'İletişim' }}</h1>
+        <div class="page-hero__subtitle">{{ hero.subtitle if hero else 'Bize Ulaşın' }}</div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <div class="section-header">
+            <h2>İletişim</h2>
+            <p>Sorularınız ve hukuki danışmanlık talepleriniz için bize ulaşın.</p>
+        </div>
+
+        <div class="contact-grid">
+            <!-- Adres Bilgileri -->
+            <div class="contact-info">
+                <h3>Adres Bilgileri</h3>
+                {% if settings.contact_address %}
+                <p><i class="fas fa-map-marker-alt"></i> {{ settings.contact_address }}</p>
+                {% endif %}
+                {% if settings.contact_phone %}
+                <p><i class="fas fa-phone-alt"></i>
+                    <a href="tel:{{ settings.contact_phone }}" style="color:#555;">{{ settings.contact_phone }}</a>
+                </p>
+                {% endif %}
+                {% if settings.contact_email %}
+                <p><i class="fas fa-envelope"></i>
+                    <a href="mailto:{{ settings.contact_email }}" style="color:#555;">{{ settings.contact_email }}</a>
+                </p>
+                {% endif %}
+
+                {% if settings.contact_hours %}
+                <h3 style="margin-top:28px;">Çalışma Saatleri</h3>
+                <p><i class="fas fa-clock"></i> {{ settings.contact_hours }}</p>
+                {% endif %}
+            </div>
+
+            <!-- İletişim Formu -->
+            <div class="contact-form">
+                <h3 style="margin-bottom:22px; color:var(--bordeaux);">Mesaj Gönderin</h3>
+                <form action="{{ url_for('iletisim_gonder') }}" method="POST">
+                    <div class="form-group">
+                        <label>Ad Soyad *</label>
+                        <input type="text" name="name" placeholder="Adınız Soyadınız" required>
+                    </div>
+                    <div class="form-group">
+                        <label>E-posta *</label>
+                        <input type="email" name="email" placeholder="ornek@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Konu</label>
+                        <input type="text" name="subject" placeholder="Mesajınızın konusu">
+                    </div>
+                    <div class="form-group">
+                        <label>Mesajınız *</label>
+                        <textarea name="message" rows="5" placeholder="Mesajınızı yazın..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary" style="width:100%;">GÖNDER</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Google Maps -->
+        {% if settings.google_maps_embed %}
+        <div class="map-wrapper" style="margin-top:50px;">
+            <iframe src="{{ settings.google_maps_embed }}" allowfullscreen loading="lazy"></iframe>
+        </div>
+        {% else %}
+        <div class="map-wrapper" style="margin-top:50px;">
+            <div class="map-placeholder">
+                <span><i class="fas fa-map-marked-alt" style="margin-right:8px;"></i>Harita için admin panelinden Google Maps embed URL ekleyin.</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
