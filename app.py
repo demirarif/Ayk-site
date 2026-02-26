@@ -599,13 +599,54 @@ def init_db():
 
 
 # ─────────────────────────────────────────
+# Sağlık kontrolü ve DB kurulum endpoint
+# ─────────────────────────────────────────
+
+@app.route('/health')
+def health():
+    """Vercel loglarında hata ayıklamak için durum bilgisi."""
+    import sqlalchemy
+    info = {
+        'status': 'ok',
+        'db_url': app.config['SQLALCHEMY_DATABASE_URI'][:40] + '...',
+        'on_vercel': os.environ.get('VERCEL', 'no'),
+    }
+    try:
+        with app.app_context():
+            db.session.execute(sqlalchemy.text('SELECT 1'))
+        info['db'] = 'connected'
+    except Exception as e:
+        info['db'] = f'ERROR: {e}'
+    return jsonify(info)
+
+
+@app.route('/setup')
+def setup():
+    """
+    Tarayıcıdan DB kurulumunu tetikle.
+    Kullanım: https://kyahukukdanismanlik.site/setup?key=<SETUP_KEY>
+    SETUP_KEY env var'ı Vercel'de tanımlanmış olmalı.
+    """
+    key = request.args.get('key', '')
+    expected = os.environ.get('SETUP_KEY', '')
+    if not expected or key != expected:
+        return jsonify({'error': 'Geçersiz anahtar'}), 403
+    try:
+        init_db()
+        return jsonify({'status': 'ok', 'message': '✓ Veritabanı kuruldu ve veriler yüklendi.'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+# ─────────────────────────────────────────
 # Uygulama başlangıcında DB kur
 # (Vercel serverless dahil her ortamda çalışır)
 # ─────────────────────────────────────────
 try:
     init_db()
 except Exception as _init_err:
-    print(f'init_db uyarısı (göz ardı): {_init_err}')
+    print(f'[UYARI] init_db otomatik kurulum başarısız: {_init_err}')
+    print('[BİLGİ] /setup?key=<SETUP_KEY> adresini ziyaret ederek manuel kurulum yapabilirsiniz.')
 
 # ─────────────────────────────────────────
 # Entry point (lokal geliştirme)

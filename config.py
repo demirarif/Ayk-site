@@ -1,52 +1,72 @@
 import os
+import re
 from dotenv import load_dotenv
 
 load_dotenv()
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
-def _fix_db_url(url):
-    """Neon/Heroku 'postgres://' → 'postgresql://' (SQLAlchemy 2.x uyumu)."""
-    if url and url.startswith('postgres://'):
-        return url.replace('postgres://', 'postgresql://', 1)
-    return url
+# Vercel filesystem salt okunur — SQLite mutlaka /tmp altında olmalı
+ON_VERCEL = os.environ.get('VERCEL', '') == '1'
+_SQLITE_PATH = '/tmp/kya.db' if ON_VERCEL else os.path.join(BASE_DIR, 'database', 'kya.db')
 
-_raw_db_url = os.environ.get(
-    'DATABASE_URL',
-    f"sqlite:///{os.path.join(BASE_DIR, 'database', 'kya.db')}"
-)
-_db_url = _fix_db_url(_raw_db_url)
-_is_postgres = _db_url.startswith('postgresql')
+
+def _build_db_url(raw_url):
+    """
+    Verilen DATABASE_URL'i SQLAlchemy + pg8000 için hazırlar.
+    - postgres:// → postgresql+pg8000://
+    - ?sslmode=require → connect_args ile yönetilir, URL'den çıkarılır
+    """
+    if not raw_url or raw_url.startswith('sqlite'):
+        return raw_url, {}
+
+    # postgres:// → postgresql://
+    url = raw_url.replace('postgres://', 'postgresql://', 1)
+
+    # pg8000 sürücüsünü zorla
+    if url.startswith('postgresql://') and '+' not in url.split('://')[0]:
+        url = url.replace('postgresql://', 'postgresql+pg8000://', 1)
+
+    # pg8000 'sslmode' parametresini URL'den anlamaz → çıkar, connect_args'a taşı
+    needs_ssl = 'sslmode=require' in url or 'sslmode=prefer' in url
+    url = re.sub(r'[?&]sslmode=[^&]*', '', url).rstrip('?').rstrip('&')
+
+    connect_args = {'ssl_context': True} if needs_ssl else {}
+    return url, connect_args
+
+
+_raw_db_url = os.environ.get('DATABASE_URL', f'sqlite:///{_SQLITE_PATH}')
+_db_url, _connect_args = _build_db_url(_raw_db_url)
+_is_postgres = 'postgresql' in _db_url
+
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'kya-dev-secret-CHANGE-IN-PROD')
     SQLALCHEMY_DATABASE_URI = _db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # Vercel serverless → her istek yeni bağlantı açar, pool gerekmez
-    # SQLite local → varsayılan pool yeterli
     if _is_postgres:
+        # Vercel serverless: kalıcı pool yok
         from sqlalchemy.pool import NullPool
         SQLALCHEMY_ENGINE_OPTIONS = {
             'poolclass': NullPool,
-            'connect_args': {'sslmode': 'require'}
-            if 'sslmode' not in _db_url else {},
+            'connect_args': _connect_args,
         }
     else:
-        SQLALCHEMY_ENGINE_OPTIONS = {'pool_pre_ping': True}
+        SQLALCHEMY_ENGINE_OPTIONS = {}
 
     # Dosya yükleme
     UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
-    MAX_CONTENT_LENGTH = 8 * 1024 * 1024   # 8MB
+    MAX_CONTENT_LENGTH = 8 * 1024 * 1024
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'gif'}
 
     # Admin
     ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'kya2024admin!')
 
-    # Cloudinary (isteğe bağlı — Vercel'de dosya yüklemek için)
+    # Cloudinary
     CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', '')
 
-    # WTF CSRF
+    # CSRF
     WTF_CSRF_TIME_LIMIT = 7200
 
