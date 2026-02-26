@@ -28,14 +28,33 @@ def _build_db_url(raw_url):
         url = url.replace('postgresql://', 'postgresql+pg8000://', 1)
 
     # pg8000 'sslmode' parametresini URL'den anlamaz → çıkar, connect_args'a taşı
-    needs_ssl = 'sslmode=require' in url or 'sslmode=prefer' in url
+    needs_ssl = 'sslmode' in raw_url
     url = re.sub(r'[?&]sslmode=[^&]*', '', url).rstrip('?').rstrip('&')
+    # pgbouncer param da pg8000'i bozar → çıkar
+    url = re.sub(r'[?&]pgbouncer=[^&]*', '', url).rstrip('?').rstrip('&')
 
     connect_args = {'ssl_context': True} if needs_ssl else {}
     return url, connect_args
 
 
-_raw_db_url = os.environ.get('DATABASE_URL', f'sqlite:///{_SQLITE_PATH}')
+# ─────────────────────────────────────────────────────────
+# Neon Vercel entegrasyonu şu değişkenleri otomatik ekler:
+#   POSTGRES_URL            → pgbouncer (havuzlu)
+#   DATABASE_URL_UNPOOLED   → direkt bağlantı (serverless için ideal)
+#   POSTGRES_URL_NO_SSL     → SSL'siz
+# Manuel olarak eklenen DATABASE_URL varsa öncelikli kullanılır.
+# ─────────────────────────────────────────────────────────
+def _pick_db_url():
+    for key in ('DATABASE_URL', 'DATABASE_URL_UNPOOLED', 'POSTGRES_URL', 'POSTGRES_URL_NO_SSL'):
+        val = (os.environ.get(key) or '').strip()
+        if val and val.startswith(('postgres', 'sqlite')):
+            print(f'[config] DB URL kaynağı: {key}')
+            return val
+    print('[config] DB URL bulunamadı, SQLite kullanılıyor.')
+    return f'sqlite:///{_SQLITE_PATH}'
+
+
+_raw_db_url = _pick_db_url()
 _db_url, _connect_args = _build_db_url(_raw_db_url)
 _is_postgres = 'postgresql' in _db_url
 
