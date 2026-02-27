@@ -94,6 +94,7 @@ def save_upload(file):
     """
     Dosyayı kaydeder ve URL döndürür.
     - CLOUDINARY_URL ayarlandıysa Cloudinary'e yükler (Vercel production)
+    - Vercel'de (VERCEL=1) /tmp/uploads/ kullanır, ephemeral servis route'u ile döner
     - Yoksa static/uploads/'a kaydeder (yerel geliştirme)
     """
     if not file or file.filename == '':
@@ -101,7 +102,7 @@ def save_upload(file):
     if not allowed_file(file.filename):
         return None
 
-    # Cloudinary (Vercel production için)
+    # Cloudinary (production için önerilen)
     if app.config.get('CLOUDINARY_URL'):
         try:
             import cloudinary
@@ -116,14 +117,27 @@ def save_upload(file):
             app.logger.error(f'Cloudinary yükleme hatası: {e}')
             return None
 
-    # Yerel kayıt (geliştirme ortamı)
-    upload_dir = app.config['UPLOAD_FOLDER']
-    os.makedirs(upload_dir, exist_ok=True)
     filename = secure_filename(file.filename)
     base, ext = os.path.splitext(filename)
     filename = f"{base}_{int(datetime.utcnow().timestamp())}{ext}"
-    file.save(os.path.join(upload_dir, filename))
-    return f"/static/uploads/{filename}"
+
+    # Vercel serverless: static/ read-only → /tmp kullan
+    on_vercel = os.environ.get('VERCEL', '') == '1'
+    if on_vercel:
+        upload_dir = '/tmp/uploads'
+        os.makedirs(upload_dir, exist_ok=True)
+        file.save(os.path.join(upload_dir, filename))
+        return f"/tmp-uploads/{filename}"
+
+    # Yerel geliştirme
+    upload_dir = app.config['UPLOAD_FOLDER']
+    try:
+        os.makedirs(upload_dir, exist_ok=True)
+        file.save(os.path.join(upload_dir, filename))
+        return f"/static/uploads/{filename}"
+    except OSError as e:
+        app.logger.error(f'Dosya kayıt hatası: {e}')
+        return None
 
 
 def site_settings():
@@ -317,11 +331,18 @@ def admin_articles():
 def admin_article_new():
     if request.method == 'POST':
         title = request.form['title']
+        custom_slug = request.form.get('slug', '').strip()
+        slug = slugify(custom_slug) if custom_slug else slugify(title)
+        # Slug benzersizliği
+        base_slug, counter = slug, 1
+        while Article.query.filter_by(slug=slug).first():
+            slug = f"{base_slug}-{counter}"
+            counter += 1
         cover_url = save_upload(request.files.get('cover'))
         is_published = 'is_published' in request.form
         article = Article(
             title=title,
-            slug=slugify(title),
+            slug=slug,
             summary=request.form.get('summary', ''),
             content=request.form.get('content', ''),
             author=request.form.get('author', ''),
@@ -343,6 +364,12 @@ def admin_article_edit(aid):
     if request.method == 'POST':
         new_cover = save_upload(request.files.get('cover'))
         article.title = request.form['title']
+        # Slug güncelleme (doluysa kullan, boşsa mevcut koru)
+        custom_slug = request.form.get('slug', '').strip()
+        if custom_slug and custom_slug != article.slug:
+            new_slug = slugify(custom_slug)
+            if not Article.query.filter(Article.id != article.id, Article.slug == new_slug).first():
+                article.slug = new_slug
         article.summary = request.form.get('summary', '')
         article.content = request.form.get('content', '')
         article.author = request.form.get('author', '')
@@ -383,11 +410,11 @@ def admin_areas():
 @login_required
 def admin_areas_save():
     """Tüm alanları toplu kaydet/güncelle"""
-    # Mevcut herkesi sil, yeniden oluştur
     PracticeArea.query.delete()
     titles = request.form.getlist('title[]')
-    descs = request.form.getlist('desc[]')
-    icons = request.form.getlist('icon[]')
+    descs  = request.form.getlist('desc[]')
+    icons  = request.form.getlist('icon[]')
+    actives = request.form.getlist('active[]')   # aktif checkbox indeksleri
     for i, title in enumerate(titles):
         if title.strip():
             area = PracticeArea(
@@ -395,6 +422,7 @@ def admin_areas_save():
                 description=descs[i] if i < len(descs) else '',
                 icon=icons[i] if i < len(icons) else 'fas fa-gavel',
                 order_index=i,
+                is_active=(str(i) in actives),
             )
             db.session.add(area)
     db.session.commit()
@@ -493,11 +521,17 @@ def admin_change_password():
 
 
 # ─────────────────────────────────────────
-# Uploads serve (geliştirme)
+# Uploads serve
 # ─────────────────────────────────────────
 @app.route('/static/uploads/<path:filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+
+@app.route('/tmp-uploads/<path:filename>')
+def tmp_uploaded_file(filename):
+    """Vercel /tmp dosyalarını servis et (ephemeral — yeniden başlatmada kaybolur)."""
+    return send_from_directory('/tmp/uploads', filename)
 
 
 # ─────────────────────────────────────────

@@ -46,6 +46,7 @@
             <div class="contact-form">
                 <h3 style="margin-bottom:22px; color:var(--bordeaux);">Mesaj Gönderin</h3>
                 <form action="{{ url_for('iletisim_gonder') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="form-group">
                         <label>Ad Soyad *</label>
                         <input type="text" name="name" placeholder="Adınız Soyadınız" required>

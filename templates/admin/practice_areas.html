@@ -16,7 +16,6 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
     {% for area in areas %}
-    <input type="hidden" name="area_id[]" value="{{ area.id }}">
     <div style="background:var(--off-white);border-radius:8px;padding:16px;margin-bottom:14px;border:1px solid var(--border);">
       <div class="form-cols">
         <div class="form-row">
@@ -34,7 +33,7 @@
       </div>
       <div class="form-row">
         <label>
-          <input type="checkbox" name="active_{{ area.id }}" value="1" {{ 'checked' if area.is_active }}>
+          <input type="checkbox" name="active[]" value="{{ loop.index0 }}" {{ 'checked' if area.is_active }}>
           Aktif (sitede görünsün)
         </label>
       </div>
