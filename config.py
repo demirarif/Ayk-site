@@ -80,9 +80,6 @@ class Config:
     ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'arifdemir')
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'qwer1234')
 
-    # Cloudinary
-    CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', '')
-
     # CSRF
     WTF_CSRF_TIME_LIMIT = 7200
 

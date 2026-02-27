@@ -1,5 +1,7 @@
 import os
 import re
+import base64
+import requests as http_client
 from datetime import datetime
 from functools import wraps
 
@@ -52,6 +54,75 @@ def admin_subdomain_redirect():
 
 
 # ─────────────────────────────────────────
+# GitHub görsel depolama yardımcıları
+# ─────────────────────────────────────────
+_GH_OWNER  = 'demirarif'
+_GH_REPO   = 'KYA-Hukuk'
+_GH_BRANCH = 'main'
+_GH_API    = f'https://api.github.com/repos/{_GH_OWNER}/{_GH_REPO}/contents'
+
+
+def _gh_headers():
+    token = os.environ.get('GITHUB_TOKEN', '')
+    return {
+        'Authorization': f'token {token}',
+        'Accept': 'application/vnd.github.v3+json',
+    }
+
+
+def _upload_to_github(filename, file_bytes):
+    """Dosyayı repo'ya kaydeder, raw URL döndürür."""
+    path = f'static/uploads/{filename}'
+    api_url = f'{_GH_API}/{path}'
+    headers = _gh_headers()
+
+    # Mevcut dosyayı kontrol et (güncelleme için sha gerekli)
+    existing = http_client.get(api_url, headers=headers, timeout=10)
+    sha = existing.json().get('sha') if existing.status_code == 200 else None
+
+    payload = {
+        'message': f'upload: {filename}',
+        'content': base64.b64encode(file_bytes).decode(),
+        'branch': _GH_BRANCH,
+    }
+    if sha:
+        payload['sha'] = sha
+
+    resp = http_client.put(api_url, json=payload, headers=headers, timeout=30)
+    if resp.status_code in (200, 201):
+        return f'https://raw.githubusercontent.com/{_GH_OWNER}/{_GH_REPO}/{_GH_BRANCH}/{path}'
+    app.logger.error(f'GitHub yükleme hatası {resp.status_code}: {resp.text[:200]}')
+    return None
+
+
+def _delete_from_github(url):
+    """raw.githubusercontent.com URL'si verilen dosyayı repo'dan siler."""
+    if not url or 'raw.githubusercontent.com' not in url:
+        return
+    try:
+        # URL: https://raw.githubusercontent.com/owner/repo/branch/path
+        after = url.split('raw.githubusercontent.com/', 1)[-1]
+        parts = after.split('/', 3)   # owner / repo / branch / path
+        if len(parts) < 4:
+            return
+        _, _, branch, path = parts
+        api_url = f'{_GH_API}/{path}'
+        headers = _gh_headers()
+        existing = http_client.get(api_url, headers=headers, timeout=10)
+        if existing.status_code != 200:
+            return
+        sha = existing.json().get('sha')
+        http_client.delete(
+            api_url,
+            json={'message': f'delete: {path}', 'sha': sha, 'branch': branch},
+            headers=headers,
+            timeout=15,
+        )
+    except Exception as e:
+        app.logger.warning(f'GitHub silme hatası: {e}')
+
+
+# ─────────────────────────────────────────
 # Yardımcı fonksiyonlar
 # ─────────────────────────────────────────
 def allowed_file(filename):
@@ -93,48 +164,31 @@ def legacy_logo_png():
 def save_upload(file):
     """
     Dosyayı kaydeder ve URL döndürür.
-    - CLOUDINARY_URL ayarlandıysa Cloudinary'e yükler (Vercel production)
-    - Vercel'de (VERCEL=1) /tmp/uploads/ kullanır, ephemeral servis route'u ile döner
-    - Yoksa static/uploads/'a kaydeder (yerel geliştirme)
+    - GITHUB_TOKEN varsa → GitHub repo'ya yükler (kalıcı, tavsiye edilen)
+    - Yoksa → yerel static/uploads/ (geliştirme ortamı)
     """
     if not file or file.filename == '':
         return None
     if not allowed_file(file.filename):
         return None
 
-    # Cloudinary (production için önerilen)
-    if app.config.get('CLOUDINARY_URL'):
-        try:
-            import cloudinary
-            import cloudinary.uploader
-            result = cloudinary.uploader.upload(
-                file,
-                folder='kya-hukuk',
-                resource_type='image',
-            )
-            return result.get('secure_url')
-        except Exception as e:
-            app.logger.error(f'Cloudinary yükleme hatası: {e}')
-            return None
-
     filename = secure_filename(file.filename)
     base, ext = os.path.splitext(filename)
     filename = f"{base}_{int(datetime.utcnow().timestamp())}{ext}"
+    file_bytes = file.read()
 
-    # Vercel serverless: static/ read-only → /tmp kullan
-    on_vercel = os.environ.get('VERCEL', '') == '1'
-    if on_vercel:
-        upload_dir = '/tmp/uploads'
-        os.makedirs(upload_dir, exist_ok=True)
-        file.save(os.path.join(upload_dir, filename))
-        return f"/tmp-uploads/{filename}"
+    # GitHub depolama (production)
+    if os.environ.get('GITHUB_TOKEN'):
+        return _upload_to_github(filename, file_bytes)
 
     # Yerel geliştirme
     upload_dir = app.config['UPLOAD_FOLDER']
     try:
         os.makedirs(upload_dir, exist_ok=True)
-        file.save(os.path.join(upload_dir, filename))
-        return f"/static/uploads/{filename}"
+        filepath = os.path.join(upload_dir, filename)
+        with open(filepath, 'wb') as f:
+            f.write(file_bytes)
+        return f'/static/uploads/{filename}'
     except OSError as e:
         app.logger.error(f'Dosya kayıt hatası: {e}')
         return None
@@ -296,8 +350,10 @@ def admin_team_edit(mid):
         member.bio = request.form.get('bio', '')
         member.linkedin_url = request.form.get('linkedin_url', '')
         if new_photo:
+            _delete_from_github(member.photo_url)  # eski görseli sil
             member.photo_url = new_photo
         elif request.form.get('photo_url_ext'):
+            _delete_from_github(member.photo_url)
             member.photo_url = request.form['photo_url_ext']
         member.order_index = int(request.form.get('order_index', 0))
         member.is_active = 'is_active' in request.form
@@ -311,6 +367,7 @@ def admin_team_edit(mid):
 @login_required
 def admin_team_delete(mid):
     member = db.session.get(TeamMember, mid) or abort(404)
+    _delete_from_github(member.photo_url)  # görseli repo'dan sil
     db.session.delete(member)
     db.session.commit()
     flash(f'"{member.name}" silindi.', 'info')
@@ -374,8 +431,10 @@ def admin_article_edit(aid):
         article.content = request.form.get('content', '')
         article.author = request.form.get('author', '')
         if new_cover:
+            _delete_from_github(article.cover_url)  # eski kapağı sil
             article.cover_url = new_cover
         elif request.form.get('cover_url_ext'):
+            _delete_from_github(article.cover_url)
             article.cover_url = request.form['cover_url_ext']
         was_published = article.is_published
         article.is_published = 'is_published' in request.form
@@ -391,6 +450,7 @@ def admin_article_edit(aid):
 @login_required
 def admin_article_delete(aid):
     article = db.session.get(Article, aid) or abort(404)
+    _delete_from_github(article.cover_url)  # kapak görselini repo'dan sil
     db.session.delete(article)
     db.session.commit()
     flash(f'"{article.title}" silindi.', 'info')
@@ -526,12 +586,6 @@ def admin_change_password():
 @app.route('/static/uploads/<path:filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-
-@app.route('/tmp-uploads/<path:filename>')
-def tmp_uploaded_file(filename):
-    """Vercel /tmp dosyalarını servis et (ephemeral — yeniden başlatmada kaybolur)."""
-    return send_from_directory('/tmp/uploads', filename)
 
 
 # ─────────────────────────────────────────
