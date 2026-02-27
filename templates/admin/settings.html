@@ -51,7 +51,7 @@
       <h2><i class="fa-solid fa-palette"></i> Logo & Footer</h2>
       <form method="POST" action="{{ url_for('admin_logo_reset') }}" style="margin:0;">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="btn btn-ghost btn-sm" onclick="return confirm('Logolar varsayılan logo-yazısız.png\'e sıfırlanacak. Devam?')">
+        <button type="submit" class="btn btn-ghost btn-sm" onclick="return confirm('Logolar varsayılan logo-color.png\'e sıfırlanacak. Devam?')">
           <i class="fa-solid fa-rotate-left"></i> Logo Sıfırla
         </button>
       </form>

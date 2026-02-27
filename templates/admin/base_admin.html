@@ -18,7 +18,7 @@
     <div class="sidebar-brand">
       <a href="{{ url_for('admin_dashboard') }}">
         {% set logo_white_fallback = '/Assets/logo-disi.png' %}
-        {% set logo_color_fallback = '/Assets/logo-yazısız.png' %}
+        {% set logo_color_fallback = '/Assets/logo-color.png' %}
         {% if settings.logo_white_url %}
           <img src="{{ settings.logo_white_url }}" alt="KYA" style="height:42px;object-fit:contain;display:block;margin-bottom:6px;">
         {% elif settings.logo_url %}

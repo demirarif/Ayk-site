@@ -152,7 +152,7 @@ def favicon():
 def legacy_logo_png():
     """Geride kalan .png logo referansları için .svg placeholder döndür."""
     try:
-        return send_from_directory(os.path.join(app.root_path, 'static', 'uploads'), 'logo-yazısız.png')
+        return send_from_directory(os.path.join(app.root_path, 'Assets'), 'logo-color.png')
     except Exception:
         return '', 204
 
@@ -634,8 +634,8 @@ def uploaded_file(filename):
 @app.route('/admin/logo-sifirla', methods=['POST'])
 @login_required
 def admin_logo_reset():
-    """DB'deki logo URL'lerini yazısız.png ile zorla güncelle."""
-    _LOGO = '/Assets/logo-yazısız.png'
+    """DB'deki logo URL'lerini varsayılan değerlerle zorla güncelle."""
+    _LOGO = '/Assets/logo-color.png'
     _LOGO_WHITE = '/Assets/logo-disi.png'
     SiteSetting.set('logo_url', _LOGO)
     SiteSetting.set('logo_white_url', _LOGO_WHITE)
@@ -678,7 +678,7 @@ def init_db():
             'contact_hours': 'Pazartesi - Cuma: 09:00 - 18:00',
             'about_short': 'Ulusal ve uluslararası hukuki danışmanlık & avukatlık hizmetleri.',
             'footer_text': '© 2026 KYA Hukuk ve Danışmanlık. Tüm hakları saklıdır.',
-            'logo_url': '/Assets/logo-yazısız.png',
+            'logo_url': '/Assets/logo-color.png',
             'logo_white_url': '/Assets/logo-disi.png',
             'google_maps_embed': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9FMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str',
             'home_practice_title': 'Çalışma Alanlarımız',
@@ -692,21 +692,23 @@ def init_db():
             if not SiteSetting.query.filter_by(key=key).first():
                 db.session.add(SiteSetting(key=key, value=value))
 
-        # Logo: navbar için renkli yazısız PNG, hero/admin için beyaz dişi SVG
-        _LOGO_COLOR = '/Assets/logo-yazısız.png'
+        # Logo: her deployment'ta doğru değerleri zorla yaz (DB'de eski değer kalmasın)
+        _LOGO_COLOR = '/Assets/logo-color.png'
         _LOGO_WHITE = '/Assets/logo-disi.png'
         logo_setting = SiteSetting.query.filter_by(key='logo_url').first()
-        if logo_setting:
-            val = str(logo_setting.value or '').lower()
-            if 'yaz' not in val:
-                logo_setting.value = _LOGO_COLOR
-                db.session.add(logo_setting)
+        if not logo_setting:
+            logo_setting = SiteSetting(key='logo_url', value=_LOGO_COLOR)
+            db.session.add(logo_setting)
+        else:
+            logo_setting.value = _LOGO_COLOR
+            db.session.add(logo_setting)
         logo_white_setting = SiteSetting.query.filter_by(key='logo_white_url').first()
-        if logo_white_setting:
-            valw = str(logo_white_setting.value or '').lower()
-            if ('logo_disi' not in valw) and ('yaz' not in valw):
-                logo_white_setting.value = _LOGO_WHITE
-                db.session.add(logo_white_setting)
+        if not logo_white_setting:
+            logo_white_setting = SiteSetting(key='logo_white_url', value=_LOGO_WHITE)
+            db.session.add(logo_white_setting)
+        else:
+            logo_white_setting.value = _LOGO_WHITE
+            db.session.add(logo_white_setting)
 
         # Harita embed: eski q= parametre URL'sini embed URL'siyle değiştir
         _MAP = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9EMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str'
