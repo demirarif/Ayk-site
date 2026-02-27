@@ -27,10 +27,11 @@
     <header>
         <nav class="navbar">
             <a href="{{ url_for('index') }}" class="logo">
+                {% set logo_fallback = 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo-yaz%C4%B1s%C4%B1z.png' %}
                 {% if settings.logo_url %}
                 <img src="{{ settings.logo_url }}" alt="KYA Hukuk">
                 {% else %}
-                <span style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;letter-spacing:2px;">KYA</span>
+                <img src="{{ logo_fallback }}" alt="KYA Hukuk">
                 {% endif %}
             </a>
             <button class="nav-toggle" id="navToggle" aria-label="Menü">

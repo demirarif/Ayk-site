@@ -17,12 +17,14 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <a href="{{ url_for('admin_dashboard') }}">
+        {% set logo_white_fallback = 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo_disi.svg' %}
+        {% set logo_color_fallback = 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo-yaz%C4%B1s%C4%B1z.png' %}
         {% if settings.logo_white_url %}
           <img src="{{ settings.logo_white_url }}" alt="KYA" style="height:42px;object-fit:contain;display:block;margin-bottom:6px;">
         {% elif settings.logo_url %}
           <img src="{{ settings.logo_url }}" alt="KYA" style="height:42px;object-fit:contain;display:block;margin-bottom:6px;">
         {% else %}
-          <i class="fa-solid fa-scale-balanced"></i>
+          <img src="{{ logo_white_fallback }}" alt="KYA" style="height:42px;object-fit:contain;display:block;margin-bottom:6px;">
         {% endif %}
         <span>KYA Hukuk<small>Yönetim Paneli</small></span>
       </a>
