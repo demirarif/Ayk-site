@@ -8,7 +8,7 @@
   ],
   "functions": {
     "api/index.py": {
-      "maxLambdaSize": "50mb",
+      "runtime": "python3.12",
       "includeFiles": [
         "static/**",
         "templates/**",
