@@ -47,39 +47,47 @@
 
   <!-- Logo & Footer -->
   <div class="card">
-    <div class="card-header"><h2><i class="fa-solid fa-palette"></i> Logo & Footer</h2></div>
-    
-    <h3 style="margin-bottom:10px; font-size:1rem; color:var(--bordeaux);">Erkek Logo (Renkli - Açık Zeminler İçin)</h3>
+    <div class="card-header">
+      <h2><i class="fa-solid fa-palette"></i> Logo & Footer</h2>
+      <form method="POST" action="{{ url_for('admin_logo_reset') }}" style="margin:0;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-ghost btn-sm" onclick="return confirm('Logolar varsayılan logo-yazısız.png\'e sıfırlanacak. Devam?')">
+          <i class="fa-solid fa-rotate-left"></i> Logo Sıfırla
+        </button>
+      </form>
+    </div>
+
+    <h3 style="margin-bottom:10px; font-size:.95rem; color:var(--bordeaux);">Renkli Logo (Navbar - Açık Zemin)</h3>
     <div class="form-cols">
       <div class="form-row">
         <label>Logo Yükle</label>
         <input type="file" name="logo_file" accept="image/*">
         {% if settings.get('logo_url') %}
-          <img src="{{ settings.get('logo_url') }}" class="img-preview" alt="logo">
+          <img src="{{ settings.get('logo_url') }}" class="img-preview" alt="logo" style="max-height:70px;">
         {% endif %}
         <p class="hint">PNG transparan tavsiye edilir</p>
       </div>
       <div class="form-row">
-        <label>Logo URL (harici)</label>
+        <label>Logo URL</label>
         <input type="url" name="logo_url" value="{{ settings.get('logo_url','') }}" placeholder="https://...">
         <p class="hint">Dosya yüklenmezse bu URL kullanılır</p>
       </div>
     </div>
 
-    <h3 style="margin-bottom:10px; font-size:1rem; color:var(--bordeaux); margin-top:20px;">Dişi Logo (Beyaz - Koyu Zeminler İçin)</h3>
+    <h3 style="margin-bottom:10px; font-size:.95rem; color:var(--bordeaux); margin-top:20px;">Beyaz Logo (Hero alanı ve Koyu Zeminler)</h3>
     <div class="form-cols">
       <div class="form-row">
         <label>Beyaz Logo Yükle</label>
         <input type="file" name="logo_white_file" accept="image/*">
         {% if settings.get('logo_white_url') %}
-          <div style="background:#333; padding:10px; border-radius:4px; display:inline-block; margin-top:10px;">
-            <img src="{{ settings.get('logo_white_url') }}" class="img-preview" alt="logo white" style="margin:0;">
+          <div style="background:#333;padding:10px;border-radius:4px;display:inline-block;margin-top:8px;">
+            <img src="{{ settings.get('logo_white_url') }}" alt="beyaz logo" style="max-height:70px;display:block;">
           </div>
         {% endif %}
-        <p class="hint">Koyu zeminlerde (Hero vb.) kullanılır</p>
+        <p class="hint">Hero ve admin sidebar için kullanılır</p>
       </div>
       <div class="form-row">
-        <label>Beyaz Logo URL (harici)</label>
+        <label>Beyaz Logo URL</label>
         <input type="url" name="logo_white_url" value="{{ settings.get('logo_white_url','') }}" placeholder="https://...">
         <p class="hint">Dosya yüklenmezse bu URL kullanılır</p>
       </div>
@@ -87,7 +95,7 @@
 
     <div class="form-row" style="margin-top:20px;">
       <label>Footer Metni</label>
-      <input type="text" name="footer_text" value="{{ settings.get('footer_text','') }}" placeholder="© 2024 KYA Hukuk Danışmanlık">
+      <input type="text" name="footer_text" value="{{ settings.get('footer_text','') }}" placeholder="© 2026 KYA Hukuk Danışmanlık">
     </div>
   </div>
 

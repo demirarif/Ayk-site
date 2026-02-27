@@ -547,8 +547,8 @@ def admin_settings():
         ('contact_email', 'E-posta', 'email'),
         ('contact_hours', 'Çalışma Saatleri', 'text'),
         ('about_short', 'Kısa Tanıtım (Alt Başlık)', 'textarea'),
-        ('logo_url', 'Logo (Erkek/Renkli - Açık Zemin)', 'text'),
-        ('logo_white_url', 'Logo (Dişi/Beyaz - Koyu Zemin)', 'text'),
+        ('logo_url', 'Logo URL (Açık Zemin - Renkli)', 'text'),
+        ('logo_white_url', 'Logo URL (Koyu Zemin - Beyaz)', 'text'),
         ('footer_text', 'Footer Metin', 'textarea'),
         ('google_maps_embed', 'Google Maps Embed URL', 'text'),
         ('home_practice_title', 'Ana Sayfa - Çalışma Alanları Başlık', 'text'),
@@ -620,6 +620,17 @@ def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
+@app.route('/admin/logo-sifirla', methods=['POST'])
+@login_required
+def admin_logo_reset():
+    """DB'deki logo URL'lerini yazısız.png ile zorla güncelle."""
+    _LOGO = 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo-yaz%C4%B1s%C4%B1z.png'
+    SiteSetting.set('logo_url', _LOGO)
+    SiteSetting.set('logo_white_url', _LOGO)
+    flash('Logolar varsayılana sıfırlandı.', 'success')
+    return redirect(url_for('admin_settings'))
+
+
 # ─────────────────────────────────────────
 # DB başlatma & seed
 # ─────────────────────────────────────────
@@ -666,21 +677,19 @@ def init_db():
             if not SiteSetting.query.filter_by(key=key).first():
                 db.session.add(SiteSetting(key=key, value=value))
 
-        # Logo ve harita embed temizle: boşsa veya .png ise varsayılan URL'ye çek
-        default_logo = defaults['logo_url']
-        logo_setting = SiteSetting.query.filter_by(key='logo_url').first()
-        if logo_setting and (not logo_setting.value or 'logo_erkek.svg' in str(logo_setting.value) or 'logo.svg' in str(logo_setting.value)):
-            logo_setting.value = default_logo
-            db.session.add(logo_setting)
-            
-        logo_white_setting = SiteSetting.query.filter_by(key='logo_white_url').first()
-        if logo_white_setting and (not logo_white_setting.value or 'logo_disi.svg' in str(logo_white_setting.value)):
-            logo_white_setting.value = defaults['logo_white_url']
-            db.session.add(logo_white_setting)
+        # Logo: yazısız.png kullanıyorsa zaten doğru, değilse güncelle
+        _LOGO_URL = 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo-yaz%C4%B1s%C4%B1z.png'
+        for _key in ('logo_url', 'logo_white_url'):
+            _s = SiteSetting.query.filter_by(key=_key).first()
+            if _s and 'yaz' not in str(_s.value or ''):
+                _s.value = _LOGO_URL
+                db.session.add(_s)
 
+        # Harita embed: eski q= parametre URL'sini embed URL'siyle değiştir
+        _MAP = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9FMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str'
         map_setting = SiteSetting.query.filter_by(key='google_maps_embed').first()
-        if map_setting and (not map_setting.value or 'maps.google.com/maps?q=' in str(map_setting.value)):
-            map_setting.value = defaults['google_maps_embed']
+        if map_setting and ('maps?q=' in str(map_setting.value or '') or not map_setting.value):
+            map_setting.value = _MAP
             db.session.add(map_setting)
 
         # Hero bölümleri
