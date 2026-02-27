@@ -7,7 +7,9 @@
     <div class="page-hero__bg" style="background-image:url('{{ hero.image_url if hero else '' }}')"></div>
     <div class="page-hero__overlay"></div>
     <div class="page-hero__content">
-        {% if settings.logo_url %}
+        {% if settings.logo_white_url %}
+        <img src="{{ settings.logo_white_url }}" alt="KYA Hukuk" class="page-hero__logo">
+        {% elif settings.logo_url %}
         <img src="{{ settings.logo_url }}" alt="KYA Hukuk" class="page-hero__logo">
         {% endif %}
         <h1 class="page-hero__title">{{ hero.title if hero else 'KELEŞTEMUR | YİĞİT | ALTAY' }}</h1>

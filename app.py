@@ -537,13 +537,22 @@ def admin_settings():
         ('contact_email', 'E-posta', 'email'),
         ('contact_hours', 'Çalışma Saatleri', 'text'),
         ('about_short', 'Kısa Tanıtım (Alt Başlık)', 'textarea'),
-        ('logo_url', 'Logo (yol veya URL)', 'text'),
+        ('logo_url', 'Logo (Erkek/Renkli - Açık Zemin)', 'text'),
+        ('logo_white_url', 'Logo (Dişi/Beyaz - Koyu Zemin)', 'text'),
         ('footer_text', 'Footer Metin', 'textarea'),
         ('google_maps_embed', 'Google Maps Embed URL', 'text'),
         ('home_practice_title', 'Ana Sayfa - Çalışma Alanları Başlık', 'text'),
         ('home_practice_subtitle', 'Ana Sayfa - Çalışma Alanları Alt Başlık', 'text'),
         ('home_articles_title', 'Ana Sayfa - Makaleler Başlık', 'text'),
         ('home_articles_subtitle', 'Ana Sayfa - Makaleler Alt Başlık', 'text'),
+        ('about_values_title', 'Hakkımızda - Değerlerimiz Başlık', 'text'),
+        ('about_values_subtitle', 'Hakkımızda - Değerlerimiz Alt Başlık', 'text'),
+        ('team_section_title', 'Ekibimiz - Bölüm Başlığı', 'text'),
+        ('team_section_subtitle', 'Ekibimiz - Bölüm Alt Başlığı', 'text'),
+        ('areas_section_title', 'Çalışma Alanları - Bölüm Başlığı', 'text'),
+        ('areas_section_subtitle', 'Çalışma Alanları - Bölüm Alt Başlığı', 'text'),
+        ('articles_section_title', 'Makaleler - Bölüm Başlığı', 'text'),
+        ('articles_section_subtitle', 'Makaleler - Bölüm Alt Başlığı', 'text'),
         ('contact_section_title', 'İletişim Bölümü Başlık', 'text'),
         ('contact_section_subtitle', 'İletişim Bölümü Alt Başlık', 'text'),
     ]
@@ -557,6 +566,13 @@ def admin_settings():
             url = save_upload(logo_file)
             if url:
                 SiteSetting.set('logo_url', url)
+                
+        logo_white_file = request.files.get('logo_white_file')
+        if logo_white_file and logo_white_file.filename:
+            url = save_upload(logo_white_file)
+            if url:
+                SiteSetting.set('logo_white_url', url)
+                
         flash('Ayarlar kaydedildi.', 'success')
         return redirect(url_for('admin_settings'))
     settings = {s.key: s.value for s in SiteSetting.query.all()}
@@ -630,8 +646,9 @@ def init_db():
             'contact_hours': 'Pazartesi - Cuma: 09:00 - 18:00',
             'about_short': 'Ulusal ve uluslararası hukuki danışmanlık & avukatlık hizmetleri.',
             'footer_text': '© 2026 KYA Hukuk ve Danışmanlık. Tüm hakları saklıdır.',
-            'logo_url': 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo.svg',
-            'google_maps_embed': 'https://www.google.com/maps?q=Emniyet,+Hipodrom+Cd.+Merkez+Ankara+Konutlar%C4%B1+blok+L1+NO:2,+06170+Yenimahalle/Ankara&output=embed',
+            'logo_url': 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo_erkek.svg',
+            'logo_white_url': 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo_disi.svg',
+            'google_maps_embed': 'https://maps.google.com/maps?q=KYA%20HUKUK%20ve%20DANI%C5%9FMANLIK%20Emniyet,%20Hipodrom%20Cd.%20Merkez%20Ankara%20Konutlar%C4%B1%20blok%20L1%20NO:2,%2006170%20Yenimahalle/Ankara&t=&z=15&ie=UTF8&iwloc=&output=embed',
             'home_practice_title': 'Çalışma Alanlarımız',
             'home_practice_subtitle': 'Başlıca uzmanlık alanlarımızı keşfedin.',
             'home_articles_title': 'Son Makaleler',
@@ -681,19 +698,19 @@ def init_db():
                     name='Av. Mehmet Emre Yiğit', role='Kurucu Ortak', order_index=0,
                     bio='Başkent Üniversitesi Hukuk Fakültesi mezunudur. Ticaret Hukuku ve Şirketler Hukuku alanlarında uzmanlaşmıştır.',
                     linkedin_url='https://www.linkedin.com/in/mehmetemreyigit/',
-                    photo_url='https://ui-avatars.com/api/?name=Mehmet+Emre+Yigit&background=800020&color=fff&size=400&bold=true',
+                    photo_url='https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80',
                 ),
                 TeamMember(
                     name='Av. Tevfik Keleştemur', role='Kurucu Ortak', order_index=1,
                     bio='Ceza Hukuku ve İdare Hukuku alanlarında derinlemesine tecrübeye sahiptir.',
                     linkedin_url='https://www.linkedin.com/in/tevfik-kele%C5%9Ftemur-06ab04104/',
-                    photo_url='https://ui-avatars.com/api/?name=Tevfik+Kelestemur&background=800020&color=fff&size=400&bold=true',
+                    photo_url='https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&q=80',
                 ),
                 TeamMember(
                     name='Av. Direnç Onat Altay', role='Kurucu Ortak', order_index=2,
                     bio='Özel Hukuk, Sözleşmeler Hukuku ve Fikri Mülkiyet Hukuku alanlarında çalışmaktadır.',
                     linkedin_url='https://www.linkedin.com/in/diren%C3%A7-onat-altay-30b2491b3/',
-                    photo_url='https://ui-avatars.com/api/?name=Direnc+Onat+Altay&background=800020&color=fff&size=400&bold=true',
+                    photo_url='https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80',
                 ),
             ]
             db.session.add_all(members)

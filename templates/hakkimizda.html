@@ -30,7 +30,10 @@
 <!-- Değerlerimiz -->
 <section class="bg-light">
     <div class="container">
-        <div class="section-header"><h2>Değerlerimiz</h2></div>
+        <div class="section-header">
+            <h2>{{ settings.about_values_title or 'Değerlerimiz' }}</h2>
+            {% if settings.about_values_subtitle %}<p>{{ settings.about_values_subtitle }}</p>{% endif %}
+        </div>
         <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:36px;">
             <div style="text-align:center; padding:30px 20px;">
                 <i class="fas fa-balance-scale" style="font-size:2.5rem; color:var(--bordeaux); margin-bottom:16px; display:block;"></i>

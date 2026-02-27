@@ -13,6 +13,10 @@
 
 <section>
     <div class="container">
+        <div class="section-header">
+            <h2>{{ settings.team_section_title or 'Avukat Kadromuz' }}</h2>
+            {% if settings.team_section_subtitle %}<p>{{ settings.team_section_subtitle }}</p>{% endif %}
+        </div>
         <div class="team-list">
             {% for member in team %}
             <div class="team-card">

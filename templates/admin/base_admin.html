@@ -17,7 +17,9 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <a href="{{ url_for('admin_dashboard') }}">
-        {% if settings.logo_url %}
+        {% if settings.logo_white_url %}
+          <img src="{{ settings.logo_white_url }}" alt="KYA" style="height:42px;object-fit:contain;display:block;margin-bottom:6px;">
+        {% elif settings.logo_url %}
           <img src="{{ settings.logo_url }}" alt="KYA" style="height:42px;object-fit:contain;display:block;margin-bottom:6px;">
         {% else %}
           <i class="fa-solid fa-scale-balanced"></i>
@@ -45,7 +47,7 @@
 
       <div class="sidebar-section">Görünüm</div>
       <a href="{{ url_for('admin_hero') }}" class="{{ 'active' if request.endpoint == 'admin_hero' }}">
-        <i class="fa-solid fa-image"></i> Hero Görselleri
+        <i class="fa-solid fa-image"></i> Sayfa Başlıkları (Hero)
       </a>
       <a href="{{ url_for('admin_settings') }}" class="{{ 'active' if request.endpoint == 'admin_settings' }}">
         <i class="fa-solid fa-gear"></i> Site Ayarları

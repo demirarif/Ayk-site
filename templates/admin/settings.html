@@ -48,6 +48,8 @@
   <!-- Logo & Footer -->
   <div class="card">
     <div class="card-header"><h2><i class="fa-solid fa-palette"></i> Logo & Footer</h2></div>
+    
+    <h3 style="margin-bottom:10px; font-size:1rem; color:var(--bordeaux);">Erkek Logo (Renkli - Açık Zeminler İçin)</h3>
     <div class="form-cols">
       <div class="form-row">
         <label>Logo Yükle</label>
@@ -63,9 +65,112 @@
         <p class="hint">Dosya yüklenmezse bu URL kullanılır</p>
       </div>
     </div>
-    <div class="form-row">
+
+    <h3 style="margin-bottom:10px; font-size:1rem; color:var(--bordeaux); margin-top:20px;">Dişi Logo (Beyaz - Koyu Zeminler İçin)</h3>
+    <div class="form-cols">
+      <div class="form-row">
+        <label>Beyaz Logo Yükle</label>
+        <input type="file" name="logo_white_file" accept="image/*">
+        {% if settings.get('logo_white_url') %}
+          <div style="background:#333; padding:10px; border-radius:4px; display:inline-block; margin-top:10px;">
+            <img src="{{ settings.get('logo_white_url') }}" class="img-preview" alt="logo white" style="margin:0;">
+          </div>
+        {% endif %}
+        <p class="hint">Koyu zeminlerde (Hero vb.) kullanılır</p>
+      </div>
+      <div class="form-row">
+        <label>Beyaz Logo URL (harici)</label>
+        <input type="url" name="logo_white_url" value="{{ settings.get('logo_white_url','') }}" placeholder="https://...">
+        <p class="hint">Dosya yüklenmezse bu URL kullanılır</p>
+      </div>
+    </div>
+
+    <div class="form-row" style="margin-top:20px;">
       <label>Footer Metni</label>
       <input type="text" name="footer_text" value="{{ settings.get('footer_text','') }}" placeholder="© 2024 KYA Hukuk Danışmanlık">
+    </div>
+  </div>
+
+  <!-- Sayfa İçi Başlıklar -->
+  <div class="card">
+    <div class="card-header"><h2><i class="fa-solid fa-heading"></i> Sayfa İçi Başlıklar (Maks 7 Bölüm)</h2></div>
+    <p class="hint" style="margin-bottom:20px;">Sayfaların üst kısımlarındaki (Hero) başlıkları sol menüdeki "Sayfa Başlıkları ve Görselleri" kısmından değiştirebilirsiniz. Aşağıdaki alanlar sayfa içindeki bölümler içindir.</p>
+    
+    <div class="form-cols">
+      <div class="form-row">
+        <label>1. Ana Sayfa - Çalışma Alanları Başlık</label>
+        <input type="text" name="home_practice_title" value="{{ settings.get('home_practice_title','') }}">
+      </div>
+      <div class="form-row">
+        <label>Alt Başlık</label>
+        <input type="text" name="home_practice_subtitle" value="{{ settings.get('home_practice_subtitle','') }}">
+      </div>
+    </div>
+    
+    <div class="form-cols">
+      <div class="form-row">
+        <label>2. Ana Sayfa - Makaleler Başlık</label>
+        <input type="text" name="home_articles_title" value="{{ settings.get('home_articles_title','') }}">
+      </div>
+      <div class="form-row">
+        <label>Alt Başlık</label>
+        <input type="text" name="home_articles_subtitle" value="{{ settings.get('home_articles_subtitle','') }}">
+      </div>
+    </div>
+
+    <div class="form-cols">
+      <div class="form-row">
+        <label>3. Hakkımızda - Değerlerimiz Başlık</label>
+        <input type="text" name="about_values_title" value="{{ settings.get('about_values_title','') }}">
+      </div>
+      <div class="form-row">
+        <label>Alt Başlık</label>
+        <input type="text" name="about_values_subtitle" value="{{ settings.get('about_values_subtitle','') }}">
+      </div>
+    </div>
+
+    <div class="form-cols">
+      <div class="form-row">
+        <label>4. Ekibimiz - Bölüm Başlığı</label>
+        <input type="text" name="team_section_title" value="{{ settings.get('team_section_title','') }}">
+      </div>
+      <div class="form-row">
+        <label>Alt Başlık</label>
+        <input type="text" name="team_section_subtitle" value="{{ settings.get('team_section_subtitle','') }}">
+      </div>
+    </div>
+
+    <div class="form-cols">
+      <div class="form-row">
+        <label>5. Çalışma Alanları - Bölüm Başlığı</label>
+        <input type="text" name="areas_section_title" value="{{ settings.get('areas_section_title','') }}">
+      </div>
+      <div class="form-row">
+        <label>Alt Başlık</label>
+        <input type="text" name="areas_section_subtitle" value="{{ settings.get('areas_section_subtitle','') }}">
+      </div>
+    </div>
+
+    <div class="form-cols">
+      <div class="form-row">
+        <label>6. Makaleler - Bölüm Başlığı</label>
+        <input type="text" name="articles_section_title" value="{{ settings.get('articles_section_title','') }}">
+      </div>
+      <div class="form-row">
+        <label>Alt Başlık</label>
+        <input type="text" name="articles_section_subtitle" value="{{ settings.get('articles_section_subtitle','') }}">
+      </div>
+    </div>
+
+    <div class="form-cols">
+      <div class="form-row">
+        <label>7. İletişim Bölümü Başlık</label>
+        <input type="text" name="contact_section_title" value="{{ settings.get('contact_section_title','') }}">
+      </div>
+      <div class="form-row">
+        <label>Alt Başlık</label>
+        <input type="text" name="contact_section_subtitle" value="{{ settings.get('contact_section_subtitle','') }}">
+      </div>
     </div>
   </div>
 
