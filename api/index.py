@@ -21,5 +21,4 @@ except Exception as e:
                        [('Content-Type', 'text/plain; charset=utf-8')])
         return [err.encode('utf-8')]
 
-# Vercel WSGI handler
-handler = app
+# Vercel, modülde `app` tanımlıysa WSGI olarak otomatik sarar.
