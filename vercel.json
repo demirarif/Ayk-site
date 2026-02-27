@@ -6,16 +6,6 @@
       "use": "@vercel/python"
     }
   ],
-  "functions": {
-    "api/index.py": {
-      "runtime": "python3.12",
-      "includeFiles": [
-        "static/**",
-        "templates/**",
-        "database/**"
-      ]
-    }
-  },
   "routes": [
     {
       "src": "/(.*)",
