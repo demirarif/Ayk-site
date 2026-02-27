@@ -93,6 +93,8 @@ def _delete_from_github(url):
     """raw.githubusercontent.com URL'si verilen dosyayı repo'dan siler."""
     if not url or 'raw.githubusercontent.com' not in url:
         return
+    if not os.environ.get('GITHUB_TOKEN'):
+        return
     try:
         # URL: https://raw.githubusercontent.com/owner/repo/branch/path
         after = url.split('raw.githubusercontent.com/', 1)[-1]
@@ -655,6 +657,9 @@ def init_db():
                 db.session.add(admin)
             db.session.commit()
             print(f"✓ Admin kullanıcı hazır: {admin_username}")
+        elif legacy_admin and legacy_admin.id != admin.id:
+            db.session.delete(legacy_admin)
+            db.session.commit()
 
         # Varsayılan ayarlar
         defaults = {
@@ -719,6 +724,11 @@ def init_db():
         for page, title, subtitle, image_url in hero_defaults:
             if not HeroSection.query.filter_by(page=page).first():
                 db.session.add(HeroSection(page=page, title=title, subtitle=subtitle, image_url=image_url))
+
+        index_hero = HeroSection.query.filter_by(page='index').first()
+        if index_hero and (not index_hero.image_url or 'unsplash' in str(index_hero.image_url)):
+            index_hero.image_url = 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/Assets/Atakule3.png'
+            db.session.add(index_hero)
 
         # Ekip üyeleri
         if TeamMember.query.count() == 0:

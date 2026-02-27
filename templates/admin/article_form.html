@@ -19,7 +19,7 @@
     </a>
   </div>
 
-  <form method="POST" enctype="multipart/form-data" id="article-form">
+  <form method="POST" enctype="multipart/form-data" id="article-form" data-has-article="{{ '1' if article else '0' }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <!-- Quill içeriği buraya yazılacak -->
     <input type="hidden" name="content" id="content-hidden">
@@ -109,7 +109,7 @@ document.getElementById('article-form').addEventListener('submit', function() {
 });
 
 // Slug otomatik türetme (sadece yeni makale)
-var slugManual = {{ (article is not none)|tojson }};
+var slugManual = document.getElementById('article-form').dataset.hasArticle === '1';
 var titleInput = document.getElementById('title');
 var slugInput = document.getElementById('slug-field');
 
