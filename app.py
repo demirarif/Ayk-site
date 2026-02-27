@@ -157,6 +157,15 @@ def legacy_logo_png():
         return '', 204
 
 
+@app.route('/Assets/<path:filename>')
+def assets_file(filename):
+    """Assets klasörünü doğrudan servis et (logo/hero)."""
+    try:
+        return send_from_directory(os.path.join(app.root_path, 'Assets'), filename)
+    except Exception:
+        return '', 404
+
+
 def save_upload(file):
     """
     Dosyayı kaydeder ve URL döndürür.
@@ -626,8 +635,8 @@ def uploaded_file(filename):
 @login_required
 def admin_logo_reset():
     """DB'deki logo URL'lerini yazısız.png ile zorla güncelle."""
-    _LOGO = '/static/uploads/logo-yazısız.png'
-    _LOGO_WHITE = '/static/uploads/logo_disi.svg'
+    _LOGO = '/Assets/logo-yazısız.png'
+    _LOGO_WHITE = '/Assets/logo-disi.png'
     SiteSetting.set('logo_url', _LOGO)
     SiteSetting.set('logo_white_url', _LOGO_WHITE)
     flash('Logolar varsayılana sıfırlandı.', 'success')
@@ -669,8 +678,8 @@ def init_db():
             'contact_hours': 'Pazartesi - Cuma: 09:00 - 18:00',
             'about_short': 'Ulusal ve uluslararası hukuki danışmanlık & avukatlık hizmetleri.',
             'footer_text': '© 2026 KYA Hukuk ve Danışmanlık. Tüm hakları saklıdır.',
-            'logo_url': '/static/uploads/logo-yazısız.png',
-            'logo_white_url': '/static/uploads/logo_disi.svg',
+            'logo_url': '/Assets/logo-yazısız.png',
+            'logo_white_url': '/Assets/logo-disi.png',
             'google_maps_embed': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9FMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str',
             'home_practice_title': 'Çalışma Alanlarımız',
             'home_practice_subtitle': 'Başlıca uzmanlık alanlarımızı keşfedin.',
@@ -684,8 +693,8 @@ def init_db():
                 db.session.add(SiteSetting(key=key, value=value))
 
         # Logo: navbar için renkli yazısız PNG, hero/admin için beyaz dişi SVG
-        _LOGO_COLOR = '/static/uploads/logo-yazısız.png'
-        _LOGO_WHITE = '/static/uploads/logo_disi.svg'
+        _LOGO_COLOR = '/Assets/logo-yazısız.png'
+        _LOGO_WHITE = '/Assets/logo-disi.png'
         logo_setting = SiteSetting.query.filter_by(key='logo_url').first()
         if logo_setting:
             val = str(logo_setting.value or '').lower()
