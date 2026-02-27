@@ -164,6 +164,7 @@ def save_upload(file):
     if not file or file.filename == '':
         return None
     if not allowed_file(file.filename):
+        flash('Geçersiz dosya formatı.', 'error')
         return None
 
     filename = secure_filename(file.filename)
@@ -173,7 +174,15 @@ def save_upload(file):
 
     # GitHub depolama (production)
     if os.environ.get('GITHUB_TOKEN'):
-        return _upload_to_github(filename, file_bytes)
+        url = _upload_to_github(filename, file_bytes)
+        if not url:
+            flash('Görsel GitHub\'a yüklenemedi. GITHUB_TOKEN yetkilerini kontrol edin.', 'error')
+        return url
+
+    # Vercel'de token yoksa uyarı ver (salt okunur dosya sistemi)
+    if os.environ.get('VERCEL') == '1':
+        flash('Vercel ortamında görsel yüklemek için GITHUB_TOKEN gereklidir!', 'error')
+        return None
 
     # Yerel geliştirme
     upload_dir = app.config['UPLOAD_FOLDER']
@@ -185,6 +194,7 @@ def save_upload(file):
         return f'/static/uploads/{filename}'
     except OSError as e:
         app.logger.error(f'Dosya kayıt hatası: {e}')
+        flash('Yerel dosya kayıt hatası.', 'error')
         return None
 
 
@@ -633,10 +643,6 @@ def init_db():
                 db.session.add(admin)
             db.session.commit()
             print(f"✓ Admin kullanıcı hazır: {admin_username}")
-        else:
-            # Varsayılan şifreyi her deploy'da senkronize et
-            admin.set_password(admin_password)
-            db.session.commit()
 
         # Varsayılan ayarlar
         defaults = {
@@ -646,9 +652,9 @@ def init_db():
             'contact_hours': 'Pazartesi - Cuma: 09:00 - 18:00',
             'about_short': 'Ulusal ve uluslararası hukuki danışmanlık & avukatlık hizmetleri.',
             'footer_text': '© 2026 KYA Hukuk ve Danışmanlık. Tüm hakları saklıdır.',
-            'logo_url': 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo_erkek.svg',
-            'logo_white_url': 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo_disi.svg',
-            'google_maps_embed': 'https://maps.google.com/maps?q=KYA%20HUKUK%20ve%20DANI%C5%9FMANLIK%20Emniyet,%20Hipodrom%20Cd.%20Merkez%20Ankara%20Konutlar%C4%B1%20blok%20L1%20NO:2,%2006170%20Yenimahalle/Ankara&t=&z=15&ie=UTF8&iwloc=&output=embed',
+            'logo_url': 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo-yaz%C4%B1s%C4%B1z.png',
+            'logo_white_url': 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo-yaz%C4%B1s%C4%B1z.png',
+            'google_maps_embed': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9FMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str',
             'home_practice_title': 'Çalışma Alanlarımız',
             'home_practice_subtitle': 'Başlıca uzmanlık alanlarımızı keşfedin.',
             'home_articles_title': 'Son Makaleler',
@@ -663,12 +669,17 @@ def init_db():
         # Logo ve harita embed temizle: boşsa veya .png ise varsayılan URL'ye çek
         default_logo = defaults['logo_url']
         logo_setting = SiteSetting.query.filter_by(key='logo_url').first()
-        if logo_setting and (not logo_setting.value or str(logo_setting.value).endswith('.png')):
+        if logo_setting and (not logo_setting.value or 'logo_erkek.svg' in str(logo_setting.value) or 'logo.svg' in str(logo_setting.value)):
             logo_setting.value = default_logo
             db.session.add(logo_setting)
+            
+        logo_white_setting = SiteSetting.query.filter_by(key='logo_white_url').first()
+        if logo_white_setting and (not logo_white_setting.value or 'logo_disi.svg' in str(logo_white_setting.value)):
+            logo_white_setting.value = defaults['logo_white_url']
+            db.session.add(logo_white_setting)
 
         map_setting = SiteSetting.query.filter_by(key='google_maps_embed').first()
-        if map_setting and not map_setting.value:
+        if map_setting and (not map_setting.value or 'maps.google.com/maps?q=' in str(map_setting.value)):
             map_setting.value = defaults['google_maps_embed']
             db.session.add(map_setting)
 
