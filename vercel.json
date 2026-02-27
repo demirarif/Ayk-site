@@ -3,22 +3,20 @@
   "builds": [
     {
       "src": "api/index.py",
-      "use": "@vercel/python",
-      "config": {
-        "maxLambdaSize": "50mb",
-        "includeFiles": [
-          "static/**",
-          "templates/**",
-          "database/**"
-        ]
-      }
+      "use": "@vercel/python"
     }
   ],
+  "functions": {
+    "api/index.py": {
+      "maxLambdaSize": "50mb",
+      "includeFiles": [
+        "static/**",
+        "templates/**",
+        "database/**"
+      ]
+    }
+  },
   "routes": [
-    {
-      "src": "/static/(.*)",
-      "dest": "/static/$1"
-    },
     {
       "src": "/(.*)",
       "dest": "/api/index.py"

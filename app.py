@@ -511,7 +511,7 @@ def init_db():
             'contact_hours': 'Pazartesi - Cuma: 09:00 - 18:00',
             'about_short': 'Ulusal ve uluslararası hukuki danışmanlık & avukatlık hizmetleri.',
             'footer_text': '© 2026 KYA Hukuk ve Danışmanlık. Tüm hakları saklıdır.',
-            'logo_url': '/static/uploads/logo.png',
+            'logo_url': '/static/uploads/logo.svg',
             'google_maps_embed': '',
         }
         for key, value in defaults.items():
