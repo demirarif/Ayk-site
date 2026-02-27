@@ -707,18 +707,17 @@ def init_db():
             db.session.add(map_setting)
 
         # Hero bölümleri
-           hero_defaults = [
-            ('index',      'KELEŞTEMUR | YİĞİT | ALTAY', 'HUKUK VE DANIŞMANLIK',
-               '/static/uploads/Atakule3.png'),
+        hero_defaults = [
+            ('index', 'KELEŞTEMUR | YİĞİT | ALTAY', 'HUKUK VE DANIŞMANLIK', '/static/uploads/Atakule3.png'),
             ('hakkimizda', 'Hakkımızda', 'Hukukun Üstünlüğü ve Adalet İçin Buradayız',
              'https://images.unsplash.com/photo-1505664194779-8beaceb93744?w=1600&q=80'),
-            ('ekibimiz',   'Avukat Kadromuz', 'Uzman ve Deneyimli Hukukçularımız',
+            ('ekibimiz', 'Avukat Kadromuz', 'Uzman ve Deneyimli Hukukçularımız',
              'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1600&q=80'),
-            ('faaliyet',   'Çalışma Alanları', 'Başlıca Uzmanlık Alanlarımız',
+            ('faaliyet', 'Çalışma Alanları', 'Başlıca Uzmanlık Alanlarımız',
              'https://images.unsplash.com/photo-1589994965851-a8f479c573a9?w=1600&q=80'),
-            ('makaleler',  'Makaleler', 'Hukuki Bilgi Köşesi',
+            ('makaleler', 'Makaleler', 'Hukuki Bilgi Köşesi',
              'https://images.unsplash.com/photo-1456324504439-367cee3b3c32?w=1600&q=80'),
-            ('iletisim',   'İletişim', 'Bize Ulaşın',
+            ('iletisim', 'İletişim', 'Bize Ulaşın',
              'https://images.unsplash.com/photo-1497366412874-3415097a27e7?w=1600&q=80'),
         ]
         for page, title, subtitle, image_url in hero_defaults:
