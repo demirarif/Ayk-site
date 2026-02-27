@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.css">
 {% block head %}{% endblock %}
 </head>
 <body>
@@ -84,11 +85,85 @@
     </div>
   </div>
 </div>
+<div class="cropper-backdrop" id="cropperBackdrop" aria-hidden="true">
+  <div class="cropper-modal">
+    <div class="cropper-modal__header">
+      <h3>Görseli Kırp</h3>
+      <button type="button" class="btn btn-ghost btn-sm" id="cropperCancel">Kapat</button>
+    </div>
+    <div class="cropper-modal__body">
+      <img id="cropperImage" alt="Kırpma önizlemesi">
+    </div>
+    <div class="cropper-modal__actions">
+      <button type="button" class="btn btn-ghost" id="cropperCancel2">İptal</button>
+      <button type="button" class="btn btn-primary" id="cropperConfirm"><i class="fa-solid fa-crop"></i> Kırp ve Kullan</button>
+    </div>
+  </div>
+</div>
 <script>
 // Mobile sidebar toggle (ileride hamburger butona bağlanır)
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
 }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.js"></script>
+<script>
+(function(){
+  const backdrop = document.getElementById('cropperBackdrop');
+  const img = document.getElementById('cropperImage');
+  const confirmBtn = document.getElementById('cropperConfirm');
+  const cancelBtns = [document.getElementById('cropperCancel'), document.getElementById('cropperCancel2')];
+  let cropper = null;
+  let activeInput = null;
+
+  function closeModal() {
+    if (cropper) { cropper.destroy(); cropper = null; }
+    backdrop.classList.remove('open');
+    activeInput = null;
+  }
+
+  cancelBtns.forEach(btn => btn && btn.addEventListener('click', closeModal));
+  document.addEventListener('keyup', e => { if (e.key === 'Escape') closeModal(); });
+
+  document.querySelectorAll('input.crop-input[type=file]').forEach(input => {
+    input.addEventListener('change', function(ev) {
+      const file = this.files && this.files[0];
+      if (!file || !file.type.startsWith('image/')) return;
+      activeInput = this;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        img.src = e.target.result;
+        backdrop.classList.add('open');
+        const aspect = parseFloat(activeInput.dataset.aspect || '1');
+        cropper = new Cropper(img, {
+          aspectRatio: aspect,
+          viewMode: 1,
+          autoCropArea: 1,
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  confirmBtn.addEventListener('click', function() {
+    if (!cropper || !activeInput) return closeModal();
+    const original = activeInput.files[0];
+    cropper.getCroppedCanvas().toBlob(function(blob) {
+      if (!blob) return closeModal();
+      const fileName = (original && original.name) || 'upload.png';
+      const file = new File([blob], fileName, { type: blob.type || 'image/png' });
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      activeInput.files = dt.files;
+
+      const preview = activeInput.closest('.form-row')?.querySelector('img');
+      if (preview) {
+        preview.src = URL.createObjectURL(file);
+      }
+      closeModal();
+    }, (original && original.type) || 'image/png', 0.92);
+  });
+})();
 </script>
 {% block scripts %}{% endblock %}
 </body>

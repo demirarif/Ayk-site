@@ -77,8 +77,8 @@ class Config:
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'gif'}
 
     # Admin
-    ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
-    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'kya2024admin!')
+    ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'arifdemir')
+    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'qwer1234')
 
     # Cloudinary
     CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', '')

@@ -33,7 +33,7 @@
     <div class="form-cols">
       <div class="form-row">
         <label>Fotoğraf Yükle</label>
-        <input type="file" name="photo" accept="image/*">
+        <input type="file" name="photo" accept="image/*" class="crop-input" data-aspect="1">
         {% if member and member.photo_url %}
           <img src="{{ member.photo_url }}" class="img-preview" alt="mevcut fotoğraf">
         {% endif %}

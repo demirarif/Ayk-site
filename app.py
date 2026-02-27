@@ -78,6 +78,15 @@ def favicon():
         return '', 204
 
 
+@app.route('/static/uploads/logo.png')
+def legacy_logo_png():
+    """Geride kalan .png logo referansları için .svg placeholder döndür."""
+    try:
+        return send_from_directory(os.path.join(app.root_path, 'static', 'uploads'), 'logo.svg')
+    except Exception:
+        return '', 204
+
+
 def save_upload(file):
     """
     Dosyayı kaydeder ve URL döndürür.
@@ -494,14 +503,27 @@ def uploaded_file(filename):
 def init_db():
     with app.app_context():
         db.create_all()
+        admin_username = app.config['ADMIN_USERNAME']
+        admin_password = app.config['ADMIN_PASSWORD']
 
-        # Admin kullanıcı
-        if not User.query.filter_by(username=app.config['ADMIN_USERNAME']).first():
-            admin = User(username=app.config['ADMIN_USERNAME'])
-            admin.set_password(app.config['ADMIN_PASSWORD'])
-            db.session.add(admin)
+        # Admin kullanıcı (mevcut 'admin' hesabını yeni kullanıcı adına taşır ve şifreyi günceller)
+        admin = User.query.filter_by(username=admin_username).first()
+        legacy_admin = User.query.filter_by(username='admin').first()
+        if not admin:
+            if legacy_admin:
+                legacy_admin.username = admin_username
+                legacy_admin.set_password(admin_password)
+                admin = legacy_admin
+            else:
+                admin = User(username=admin_username)
+                admin.set_password(admin_password)
+                db.session.add(admin)
             db.session.commit()
-            print(f"✓ Admin kullanıcı oluşturuldu: {app.config['ADMIN_USERNAME']}")
+            print(f"✓ Admin kullanıcı hazır: {admin_username}")
+        else:
+            # Varsayılan şifreyi her deploy'da senkronize et
+            admin.set_password(admin_password)
+            db.session.commit()
 
         # Varsayılan ayarlar
         defaults = {
@@ -517,6 +539,12 @@ def init_db():
         for key, value in defaults.items():
             if not SiteSetting.query.filter_by(key=key).first():
                 db.session.add(SiteSetting(key=key, value=value))
+
+        # Eski logo yolu .png ise .svg placeholder'a geçir
+        logo_setting = SiteSetting.query.filter_by(key='logo_url').first()
+        if logo_setting and str(logo_setting.value or '').endswith('.png'):
+            logo_setting.value = '/static/uploads/logo.svg'
+            db.session.add(logo_setting)
 
         # Hero bölümleri
         hero_defaults = [

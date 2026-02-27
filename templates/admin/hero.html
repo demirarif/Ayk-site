@@ -34,7 +34,7 @@
     <div class="form-cols">
       <div class="form-row">
         <label>Görsel Yükle</label>
-        <input type="file" name="image" accept="image/*">
+        <input type="file" name="image" accept="image/*" class="crop-input" data-aspect="1.78">
         {% if h and h.image_url %}
           <img src="{{ h.image_url }}" class="img-preview-wide" alt="{{ page_key }} hero">
         {% endif %}

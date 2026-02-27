@@ -206,3 +206,32 @@ tr:hover td { background: #fafbff; }
     .stats-grid { grid-template-columns: 1fr 1fr; }
     .form-cols { grid-template-columns: 1fr; }
 }
+
+/* Cropper modal */
+.cropper-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    padding: 24px;
+}
+.cropper-backdrop.open { display: flex; }
+.cropper-modal {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 18px 60px rgba(0,0,0,0.25);
+    max-width: 900px;
+    width: 100%;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.cropper-modal__header { display: flex; justify-content: space-between; align-items: center; }
+.cropper-modal__header h3 { font-size: 1rem; font-weight: 600; }
+.cropper-modal__body { max-height: 70vh; overflow: hidden; }
+.cropper-modal__body img { max-width: 100%; width: 100%; }
+.cropper-modal__actions { display: flex; gap: 10px; justify-content: flex-end; }
