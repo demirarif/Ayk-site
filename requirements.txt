@@ -6,5 +6,5 @@ Werkzeug==3.0.3
 Pillow==10.4.0
 python-dotenv==1.0.1
 gunicorn==22.0.0
-pg8000==1.31.2
+psycopg2-binary==2.9.9
 cloudinary==1.40.0
