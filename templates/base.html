@@ -27,7 +27,7 @@
     <header>
         <nav class="navbar">
             <a href="{{ url_for('index') }}" class="logo">
-                {% set logo_fallback = 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo-yaz%C4%B1s%C4%B1z.png' %}
+                {% set logo_fallback = '/static/uploads/logo-yazısız.png' %}
                 {% if settings.logo_url %}
                 <img src="{{ settings.logo_url }}" alt="KYA Hukuk">
                 {% else %}

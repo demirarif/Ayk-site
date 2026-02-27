@@ -626,8 +626,8 @@ def uploaded_file(filename):
 @login_required
 def admin_logo_reset():
     """DB'deki logo URL'lerini yazısız.png ile zorla güncelle."""
-    _LOGO = 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo-yaz%C4%B1s%C4%B1z.png'
-    _LOGO_WHITE = 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo_disi.svg'
+    _LOGO = '/static/uploads/logo-yazısız.png'
+    _LOGO_WHITE = '/static/uploads/logo_disi.svg'
     SiteSetting.set('logo_url', _LOGO)
     SiteSetting.set('logo_white_url', _LOGO_WHITE)
     flash('Logolar varsayılana sıfırlandı.', 'success')
@@ -669,8 +669,8 @@ def init_db():
             'contact_hours': 'Pazartesi - Cuma: 09:00 - 18:00',
             'about_short': 'Ulusal ve uluslararası hukuki danışmanlık & avukatlık hizmetleri.',
             'footer_text': '© 2026 KYA Hukuk ve Danışmanlık. Tüm hakları saklıdır.',
-            'logo_url': 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo-yaz%C4%B1s%C4%B1z.png',
-            'logo_white_url': 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo_disi.svg',
+            'logo_url': '/static/uploads/logo-yazısız.png',
+            'logo_white_url': '/static/uploads/logo_disi.svg',
             'google_maps_embed': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9FMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str',
             'home_practice_title': 'Çalışma Alanlarımız',
             'home_practice_subtitle': 'Başlıca uzmanlık alanlarımızı keşfedin.',
@@ -684,8 +684,8 @@ def init_db():
                 db.session.add(SiteSetting(key=key, value=value))
 
         # Logo: navbar için renkli yazısız PNG, hero/admin için beyaz dişi SVG
-        _LOGO_COLOR = 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo-yaz%C4%B1s%C4%B1z.png'
-        _LOGO_WHITE = 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo_disi.svg'
+        _LOGO_COLOR = '/static/uploads/logo-yazısız.png'
+        _LOGO_WHITE = '/static/uploads/logo_disi.svg'
         logo_setting = SiteSetting.query.filter_by(key='logo_url').first()
         if logo_setting:
             val = str(logo_setting.value or '').lower()
@@ -707,9 +707,9 @@ def init_db():
             db.session.add(map_setting)
 
         # Hero bölümleri
-        hero_defaults = [
+           hero_defaults = [
             ('index',      'KELEŞTEMUR | YİĞİT | ALTAY', 'HUKUK VE DANIŞMANLIK',
-             'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/Assets/Atakule3.png'),
+               '/static/uploads/Atakule3.png'),
             ('hakkimizda', 'Hakkımızda', 'Hukukun Üstünlüğü ve Adalet İçin Buradayız',
              'https://images.unsplash.com/photo-1505664194779-8beaceb93744?w=1600&q=80'),
             ('ekibimiz',   'Avukat Kadromuz', 'Uzman ve Deneyimli Hukukçularımız',
@@ -726,8 +726,8 @@ def init_db():
                 db.session.add(HeroSection(page=page, title=title, subtitle=subtitle, image_url=image_url))
 
         index_hero = HeroSection.query.filter_by(page='index').first()
-        if index_hero and (not index_hero.image_url or 'unsplash' in str(index_hero.image_url)):
-            index_hero.image_url = 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/Assets/Atakule3.png'
+        if index_hero and index_hero.image_url != '/static/uploads/Atakule3.png':
+            index_hero.image_url = '/static/uploads/Atakule3.png'
             db.session.add(index_hero)
 
         # Ekip üyeleri
