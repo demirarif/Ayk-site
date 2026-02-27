@@ -6,9 +6,9 @@
       "use": "@vercel/python"
     }
   ],
-  "functions": {
-    "api/index.py": {
-      "includeFiles": "{static/**,templates/**,database/**}"
+    "functions": {
+      "api/index.py": {
+        "includeFiles": "static/**"
     }
   },
   "routes": [
