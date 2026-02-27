@@ -665,7 +665,7 @@ def init_db():
             'about_short': 'Ulusal ve uluslararası hukuki danışmanlık & avukatlık hizmetleri.',
             'footer_text': '© 2026 KYA Hukuk ve Danışmanlık. Tüm hakları saklıdır.',
             'logo_url': 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo-yaz%C4%B1s%C4%B1z.png',
-            'logo_white_url': 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo-yaz%C4%B1s%C4%B1z.png',
+            'logo_white_url': 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo_disi.svg',
             'google_maps_embed': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9FMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str',
             'home_practice_title': 'Çalışma Alanlarımız',
             'home_practice_subtitle': 'Başlıca uzmanlık alanlarımızı keşfedin.',

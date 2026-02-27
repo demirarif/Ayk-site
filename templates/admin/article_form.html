@@ -109,7 +109,7 @@ document.getElementById('article-form').addEventListener('submit', function() {
 });
 
 // Slug otomatik türetme (sadece yeni makale)
-var slugManual = {{ 'true' if article else 'false' }};
+var slugManual = {{ (article is not none)|tojson }};
 var titleInput = document.getElementById('title');
 var slugInput = document.getElementById('slug-field');
 
