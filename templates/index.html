@@ -31,7 +31,10 @@
 <!-- Öne Çıkan 3 Alan -->
 <section>
     <div class="container">
-        <div class="section-header"><h2>Çalışma Alanlarımız</h2></div>
+        <div class="section-header">
+            <h2>{{ settings.home_practice_title or 'Çalışma Alanlarımız' }}</h2>
+            {% if settings.home_practice_subtitle %}<p>{{ settings.home_practice_subtitle }}</p>{% endif %}
+        </div>
         <div class="practice-grid">
             {% for area in areas[:6] %}
             <div class="practice-item">
@@ -55,7 +58,10 @@
 {% if articles %}
 <section class="bg-light">
     <div class="container">
-        <div class="section-header"><h2>Son Makaleler</h2></div>
+        <div class="section-header">
+            <h2>{{ settings.home_articles_title or 'Son Makaleler' }}</h2>
+            {% if settings.home_articles_subtitle %}<p>{{ settings.home_articles_subtitle }}</p>{% endif %}
+        </div>
         <div class="article-grid">
             {% for article in articles[:3] %}
             <a href="{{ url_for('makale_detay', slug=article.slug) }}" class="article-card" style="color:inherit;">

@@ -193,6 +193,12 @@ def site_settings():
     return {s.key: s.value for s in SiteSetting.query.all()}
 
 
+@app.context_processor
+def inject_settings():
+    """Tüm şablonlarda settings değişkeni hazır bulunsun."""
+    return {'settings': site_settings()}
+
+
 # ─────────────────────────────────────────
 # PUBLIC ROTALAR
 # ─────────────────────────────────────────
@@ -534,6 +540,12 @@ def admin_settings():
         ('logo_url', 'Logo (yol veya URL)', 'text'),
         ('footer_text', 'Footer Metin', 'textarea'),
         ('google_maps_embed', 'Google Maps Embed URL', 'text'),
+        ('home_practice_title', 'Ana Sayfa - Çalışma Alanları Başlık', 'text'),
+        ('home_practice_subtitle', 'Ana Sayfa - Çalışma Alanları Alt Başlık', 'text'),
+        ('home_articles_title', 'Ana Sayfa - Makaleler Başlık', 'text'),
+        ('home_articles_subtitle', 'Ana Sayfa - Makaleler Alt Başlık', 'text'),
+        ('contact_section_title', 'İletişim Bölümü Başlık', 'text'),
+        ('contact_section_subtitle', 'İletişim Bölümü Alt Başlık', 'text'),
     ]
     if request.method == 'POST':
         for key, _, _ in setting_defs:
@@ -618,18 +630,30 @@ def init_db():
             'contact_hours': 'Pazartesi - Cuma: 09:00 - 18:00',
             'about_short': 'Ulusal ve uluslararası hukuki danışmanlık & avukatlık hizmetleri.',
             'footer_text': '© 2026 KYA Hukuk ve Danışmanlık. Tüm hakları saklıdır.',
-            'logo_url': '/static/uploads/logo.svg',
-            'google_maps_embed': '',
+            'logo_url': 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo.svg',
+            'google_maps_embed': 'https://www.google.com/maps?q=Emniyet,+Hipodrom+Cd.+Merkez+Ankara+Konutlar%C4%B1+blok+L1+NO:2,+06170+Yenimahalle/Ankara&output=embed',
+            'home_practice_title': 'Çalışma Alanlarımız',
+            'home_practice_subtitle': 'Başlıca uzmanlık alanlarımızı keşfedin.',
+            'home_articles_title': 'Son Makaleler',
+            'home_articles_subtitle': 'Güncel hukuki içerikler ve makaleler.',
+            'contact_section_title': 'İletişim',
+            'contact_section_subtitle': 'Sorularınız ve hukuki danışmanlık talepleriniz için bize ulaşın.',
         }
         for key, value in defaults.items():
             if not SiteSetting.query.filter_by(key=key).first():
                 db.session.add(SiteSetting(key=key, value=value))
 
-        # Eski logo yolu .png ise .svg placeholder'a geçir
+        # Logo ve harita embed temizle: boşsa veya .png ise varsayılan URL'ye çek
+        default_logo = defaults['logo_url']
         logo_setting = SiteSetting.query.filter_by(key='logo_url').first()
-        if logo_setting and str(logo_setting.value or '').endswith('.png'):
-            logo_setting.value = '/static/uploads/logo.svg'
+        if logo_setting and (not logo_setting.value or str(logo_setting.value).endswith('.png')):
+            logo_setting.value = default_logo
             db.session.add(logo_setting)
+
+        map_setting = SiteSetting.query.filter_by(key='google_maps_embed').first()
+        if map_setting and not map_setting.value:
+            map_setting.value = defaults['google_maps_embed']
+            db.session.add(map_setting)
 
         # Hero bölümleri
         hero_defaults = [

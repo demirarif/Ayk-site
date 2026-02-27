@@ -17,7 +17,11 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <a href="{{ url_for('admin_dashboard') }}">
-        <i class="fa-solid fa-scale-balanced"></i>
+        {% if settings.logo_url %}
+          <img src="{{ settings.logo_url }}" alt="KYA" style="height:42px;object-fit:contain;display:block;margin-bottom:6px;">
+        {% else %}
+          <i class="fa-solid fa-scale-balanced"></i>
+        {% endif %}
         <span>KYA Hukuk<small>Yönetim Paneli</small></span>
       </a>
     </div>
