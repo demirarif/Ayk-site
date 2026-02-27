@@ -625,8 +625,9 @@ def uploaded_file(filename):
 def admin_logo_reset():
     """DB'deki logo URL'lerini yazısız.png ile zorla güncelle."""
     _LOGO = 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo-yaz%C4%B1s%C4%B1z.png'
+    _LOGO_WHITE = 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo_disi.svg'
     SiteSetting.set('logo_url', _LOGO)
-    SiteSetting.set('logo_white_url', _LOGO)
+    SiteSetting.set('logo_white_url', _LOGO_WHITE)
     flash('Logolar varsayılana sıfırlandı.', 'success')
     return redirect(url_for('admin_settings'))
 
@@ -677,16 +678,20 @@ def init_db():
             if not SiteSetting.query.filter_by(key=key).first():
                 db.session.add(SiteSetting(key=key, value=value))
 
-        # Logo: yazısız.png kullanıyorsa zaten doğru, değilse güncelle
-        _LOGO_URL = 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo-yaz%C4%B1s%C4%B1z.png'
-        for _key in ('logo_url', 'logo_white_url'):
-            _s = SiteSetting.query.filter_by(key=_key).first()
-            if _s and 'yaz' not in str(_s.value or ''):
-                _s.value = _LOGO_URL
-                db.session.add(_s)
+        # Logo: navbar için renkli yazısız PNG, hero/admin için beyaz dişi SVG
+        _LOGO_COLOR = 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo-yaz%C4%B1s%C4%B1z.png'
+        _LOGO_WHITE = 'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/static/uploads/logo_disi.svg'
+        logo_setting = SiteSetting.query.filter_by(key='logo_url').first()
+        if logo_setting and ('yaz%C4%B1s%C4%B1z' not in str(logo_setting.value or '')):
+            logo_setting.value = _LOGO_COLOR
+            db.session.add(logo_setting)
+        logo_white_setting = SiteSetting.query.filter_by(key='logo_white_url').first()
+        if logo_white_setting and ('logo_disi' not in str(logo_white_setting.value or '')):
+            logo_white_setting.value = _LOGO_WHITE
+            db.session.add(logo_white_setting)
 
         # Harita embed: eski q= parametre URL'sini embed URL'siyle değiştir
-        _MAP = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9FMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str'
+        _MAP = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9EMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str'
         map_setting = SiteSetting.query.filter_by(key='google_maps_embed').first()
         if map_setting and ('maps?q=' in str(map_setting.value or '') or not map_setting.value):
             map_setting.value = _MAP
@@ -695,7 +700,7 @@ def init_db():
         # Hero bölümleri
         hero_defaults = [
             ('index',      'KELEŞTEMUR | YİĞİT | ALTAY', 'HUKUK VE DANIŞMANLIK',
-             'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1600&q=80'),
+             'https://raw.githubusercontent.com/demirarif/KYA-Hukuk/main/Assets/Atakule3.png'),
             ('hakkimizda', 'Hakkımızda', 'Hukukun Üstünlüğü ve Adalet İçin Buradayız',
              'https://images.unsplash.com/photo-1505664194779-8beaceb93744?w=1600&q=80'),
             ('ekibimiz',   'Avukat Kadromuz', 'Uzman ve Deneyimli Hukukçularımız',
