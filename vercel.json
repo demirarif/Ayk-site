@@ -5,9 +5,18 @@
       "src": "api/index.py",
       "use": "@vercel/python",
       "config": {
-        "includeFiles": "{static/**,templates/**}"
+        "includeFiles": [
+          "static/**",
+          "templates/**",
+          "database/**"
+        ]
       }
     }
   ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.py"
+    }
   ]
 }

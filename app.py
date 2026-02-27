@@ -41,16 +41,10 @@ def load_user(user_id):
 @app.before_request
 def admin_subdomain_redirect():
     host = request.headers.get('Host', '').lower().split(':')[0]
+    # admin.* alt alan adını tamamen kapatıp ana domaine yönlendir
     if host.startswith('admin.'):
-        path = request.path
-        # Statik ve favicon isteklerini yönlendirme, aksi halde /admin/static/... 404 olur
-        if path.startswith(('/static/', '/favicon')):
-            return None
-        # /admin ile başlamıyorsa yönlendir
-        if not path.startswith('/admin'):
-            if path == '/':
-                return redirect('/admin/login', code=302)
-            return redirect('/admin' + path, code=302)
+        target = f"https://www.kyahukukdanismanlik.site{request.full_path.rstrip('?')}"
+        return redirect(target, code=301)
 
 
 # ─────────────────────────────────────────
