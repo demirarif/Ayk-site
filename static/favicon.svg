@@ -1,8 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="10" fill="#800020"/>
-  <!-- Scales of justice simplified + K letter -->
-  <text x="32" y="46" font-family="Georgia,serif" font-size="36" font-weight="700"
-        fill="#ffffff" text-anchor="middle" letter-spacing="-1">K</text>
-  <!-- Thin gold accent line at bottom -->
-  <rect x="14" y="52" width="36" height="2.5" rx="1.2" fill="#c9a84c"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Bordo yuvarlak kare arka plan -->
+  <rect width="64" height="64" rx="12" ry="12" fill="#7B0D1E"/>
+  <!-- Üst ince altın çizgi -->
+  <rect x="10" y="9" width="44" height="2" rx="1" fill="#C9A84C"/>
+  <!-- KYA harfleri -->
+  <text
+    x="32" y="43"
+    text-anchor="middle"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="23"
+    font-weight="700"
+    letter-spacing="1.5"
+    fill="#FFFFFF"
+  >KYA</text>
+  <!-- Alt ince altın çizgi -->
+  <rect x="10" y="53" width="44" height="2" rx="1" fill="#C9A84C"/>
 </svg>

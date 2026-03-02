@@ -210,8 +210,13 @@ def site_settings() -> dict:
     global _settings_cache, _settings_cache_ts
     if time.time() - _settings_cache_ts < _SETTINGS_TTL and _settings_cache:
         return _settings_cache
-    _settings_cache = {s.key: s.value for s in SiteSetting.query.all()}
-    _settings_cache_ts = time.time()
+    try:
+        _settings_cache = {s.key: s.value for s in SiteSetting.query.all()}
+        _settings_cache_ts = time.time()
+    except Exception:
+        # DB geçici erişilemez — mevcut cache veya boş dict döndür
+        if not _settings_cache:
+            _settings_cache = {}
     return _settings_cache
 
 
@@ -224,15 +229,17 @@ def _invalidate_settings_cache():
 @app.context_processor
 def inject_settings():
     """Tüm şablonlarda settings ve unread_messages_count hazır bulunsun."""
-    ctx = {'settings': site_settings()}
+    try:
+        ctx = {'settings': site_settings()}
+    except Exception:
+        ctx = {'settings': {}}
+    ctx['unread_messages_count'] = 0
     # Admin sayfalarında okunmamış mesaj sayısını ekle (sidebar badge için)
     if request.endpoint and request.endpoint.startswith('admin_') and current_user.is_authenticated:
         try:
             ctx['unread_messages_count'] = ContactMessage.query.filter_by(is_read=False).count()
         except Exception:
             ctx['unread_messages_count'] = 0
-    else:
-        ctx['unread_messages_count'] = 0
     return ctx
 
 
