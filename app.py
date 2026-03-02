@@ -139,15 +139,6 @@ def slugify(text):
     return text.strip('-')
 
 
-@app.route('/favicon.ico')
-def favicon():
-    """Return favicon if present; avoid 404 noise in logs."""
-    try:
-        return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico')
-    except Exception:
-        return '', 204
-
-
 @app.route('/static/uploads/logo.png')
 def legacy_logo_png():
     """Geride kalan .png logo referansları için .svg placeholder döndür."""
