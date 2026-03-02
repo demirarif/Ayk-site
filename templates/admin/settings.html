@@ -3,10 +3,10 @@
 {% block page_title %}Site Ayarları{% endblock %}
 
 {% block content %}
+
+{# ── İletişim Bilgileri ──────────────────────────────── #}
 <form method="POST" action="{{ url_for('admin_settings') }}" enctype="multipart/form-data" style="max-width:820px;">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-  <!-- İletişim Bilgileri -->
   <div class="card">
     <div class="card-header"><h2><i class="fa-solid fa-address-book"></i> İletişim Bilgileri</h2></div>
     <div class="form-cols">
@@ -34,18 +34,30 @@
       <textarea name="google_maps_embed" rows="3" placeholder='&lt;iframe src="https://maps.google.com/..." ...&gt;&lt;/iframe&gt;'>{{ settings.get('google_maps_embed','') }}</textarea>
       <p class="hint">Google Maps → Paylaş → Haritayı göm → HTML kodunu yapıştırın</p>
     </div>
+    <button type="submit" class="btn btn-primary btn-sm" style="margin-top:8px;">
+      <i class="fa-solid fa-floppy-disk"></i> Kaydet
+    </button>
   </div>
+</form>
 
-  <!-- Hakkımızda -->
+{# ── Hakkımızda ───────────────────────────────────────── #}
+<form method="POST" action="{{ url_for('admin_settings') }}" style="max-width:820px;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="card">
     <div class="card-header"><h2><i class="fa-solid fa-circle-info"></i> Hakkımızda (Kısa)</h2></div>
     <div class="form-row">
       <label>Kısa Tanıtım Metni (Anasayfa)</label>
       <textarea name="about_short" rows="3">{{ settings.get('about_short','') }}</textarea>
     </div>
+    <button type="submit" class="btn btn-primary btn-sm" style="margin-top:8px;">
+      <i class="fa-solid fa-floppy-disk"></i> Kaydet
+    </button>
   </div>
+</form>
 
-  <!-- Logo & Footer -->
+{# ── Logo & Footer ────────────────────────────────────── #}
+<form method="POST" action="{{ url_for('admin_settings') }}" enctype="multipart/form-data" style="max-width:820px;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="card">
     <div class="card-header">
       <h2><i class="fa-solid fa-palette"></i> Logo & Footer</h2>
@@ -97,93 +109,10 @@
       <label>Footer Metni</label>
       <input type="text" name="footer_text" value="{{ settings.get('footer_text','') }}" placeholder="© 2026 KYA Hukuk Danışmanlık">
     </div>
+    <button type="submit" class="btn btn-primary btn-sm" style="margin-top:8px;">
+      <i class="fa-solid fa-floppy-disk"></i> Kaydet
+    </button>
   </div>
-
-  <!-- Sayfa İçi Başlıklar -->
-  <div class="card">
-    <div class="card-header"><h2><i class="fa-solid fa-heading"></i> Sayfa İçi Başlıklar (Maks 7 Bölüm)</h2></div>
-    <p class="hint" style="margin-bottom:20px;">Sayfaların üst kısımlarındaki (Hero) başlıkları sol menüdeki "Sayfa Başlıkları ve Görselleri" kısmından değiştirebilirsiniz. Aşağıdaki alanlar sayfa içindeki bölümler içindir.</p>
-    
-    <div class="form-cols">
-      <div class="form-row">
-        <label>1. Ana Sayfa - Çalışma Alanları Başlık</label>
-        <input type="text" name="home_practice_title" value="{{ settings.get('home_practice_title','') }}">
-      </div>
-      <div class="form-row">
-        <label>Alt Başlık</label>
-        <input type="text" name="home_practice_subtitle" value="{{ settings.get('home_practice_subtitle','') }}">
-      </div>
-    </div>
-    
-    <div class="form-cols">
-      <div class="form-row">
-        <label>2. Ana Sayfa - Makaleler Başlık</label>
-        <input type="text" name="home_articles_title" value="{{ settings.get('home_articles_title','') }}">
-      </div>
-      <div class="form-row">
-        <label>Alt Başlık</label>
-        <input type="text" name="home_articles_subtitle" value="{{ settings.get('home_articles_subtitle','') }}">
-      </div>
-    </div>
-
-    <div class="form-cols">
-      <div class="form-row">
-        <label>3. Hakkımızda - Değerlerimiz Başlık</label>
-        <input type="text" name="about_values_title" value="{{ settings.get('about_values_title','') }}">
-      </div>
-      <div class="form-row">
-        <label>Alt Başlık</label>
-        <input type="text" name="about_values_subtitle" value="{{ settings.get('about_values_subtitle','') }}">
-      </div>
-    </div>
-
-    <div class="form-cols">
-      <div class="form-row">
-        <label>4. Ekibimiz - Bölüm Başlığı</label>
-        <input type="text" name="team_section_title" value="{{ settings.get('team_section_title','') }}">
-      </div>
-      <div class="form-row">
-        <label>Alt Başlık</label>
-        <input type="text" name="team_section_subtitle" value="{{ settings.get('team_section_subtitle','') }}">
-      </div>
-    </div>
-
-    <div class="form-cols">
-      <div class="form-row">
-        <label>5. Çalışma Alanları - Bölüm Başlığı</label>
-        <input type="text" name="areas_section_title" value="{{ settings.get('areas_section_title','') }}">
-      </div>
-      <div class="form-row">
-        <label>Alt Başlık</label>
-        <input type="text" name="areas_section_subtitle" value="{{ settings.get('areas_section_subtitle','') }}">
-      </div>
-    </div>
-
-    <div class="form-cols">
-      <div class="form-row">
-        <label>6. Makaleler - Bölüm Başlığı</label>
-        <input type="text" name="articles_section_title" value="{{ settings.get('articles_section_title','') }}">
-      </div>
-      <div class="form-row">
-        <label>Alt Başlık</label>
-        <input type="text" name="articles_section_subtitle" value="{{ settings.get('articles_section_subtitle','') }}">
-      </div>
-    </div>
-
-    <div class="form-cols">
-      <div class="form-row">
-        <label>7. İletişim Bölümü Başlık</label>
-        <input type="text" name="contact_section_title" value="{{ settings.get('contact_section_title','') }}">
-      </div>
-      <div class="form-row">
-        <label>Alt Başlık</label>
-        <input type="text" name="contact_section_subtitle" value="{{ settings.get('contact_section_subtitle','') }}">
-      </div>
-    </div>
-  </div>
-
-  <button type="submit" class="btn btn-primary">
-    <i class="fa-solid fa-floppy-disk"></i> Tüm Ayarları Kaydet
-  </button>
 </form>
+
 {% endblock %}

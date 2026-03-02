@@ -552,49 +552,36 @@ def admin_hero_save():
 @app.route('/admin/ayarlar', methods=['GET', 'POST'])
 @login_required
 def admin_settings():
+    # Desteklenen tüm ayar anahtarları (beyaz liste)
     setting_defs = [
         ('contact_address', 'Adres', 'textarea'),
         ('contact_phone', 'Telefon', 'text'),
         ('contact_email', 'E-posta', 'email'),
         ('contact_hours', 'Çalışma Saatleri', 'text'),
+        ('google_maps_embed', 'Google Maps Embed URL', 'text'),
         ('about_short', 'Kısa Tanıtım (Alt Başlık)', 'textarea'),
         ('logo_url', 'Logo URL (Açık Zemin - Renkli)', 'text'),
         ('logo_white_url', 'Logo URL (Koyu Zemin - Beyaz)', 'text'),
         ('footer_text', 'Footer Metin', 'textarea'),
-        ('google_maps_embed', 'Google Maps Embed URL', 'text'),
-        ('home_practice_title', 'Ana Sayfa - Çalışma Alanları Başlık', 'text'),
-        ('home_practice_subtitle', 'Ana Sayfa - Çalışma Alanları Alt Başlık', 'text'),
-        ('home_articles_title', 'Ana Sayfa - Makaleler Başlık', 'text'),
-        ('home_articles_subtitle', 'Ana Sayfa - Makaleler Alt Başlık', 'text'),
-        ('about_values_title', 'Hakkımızda - Değerlerimiz Başlık', 'text'),
-        ('about_values_subtitle', 'Hakkımızda - Değerlerimiz Alt Başlık', 'text'),
-        ('team_section_title', 'Ekibimiz - Bölüm Başlığı', 'text'),
-        ('team_section_subtitle', 'Ekibimiz - Bölüm Alt Başlığı', 'text'),
-        ('areas_section_title', 'Çalışma Alanları - Bölüm Başlığı', 'text'),
-        ('areas_section_subtitle', 'Çalışma Alanları - Bölüm Alt Başlığı', 'text'),
-        ('articles_section_title', 'Makaleler - Bölüm Başlığı', 'text'),
-        ('articles_section_subtitle', 'Makaleler - Bölüm Alt Başlığı', 'text'),
-        ('contact_section_title', 'İletişim Bölümü Başlık', 'text'),
-        ('contact_section_subtitle', 'İletişim Bölümü Alt Başlık', 'text'),
     ]
     if request.method == 'POST':
+        # Her form yalnızca kendi alanını gönderir;
+        # sadece POST'ta gelen key'leri kaydet (diğerlerini silme)
         for key, _, _ in setting_defs:
-            value = request.form.get(key, '')
-            SiteSetting.set(key, value)
-        # Logo dosya yükleme
+            if key in request.form:
+                SiteSetting.set(key, request.form.get(key, ''))
+        # Logo dosya yükleme (logo kartı gönderildiğinde)
         logo_file = request.files.get('logo_file')
         if logo_file and logo_file.filename:
             url = save_upload(logo_file)
             if url:
                 SiteSetting.set('logo_url', url)
-                
         logo_white_file = request.files.get('logo_white_file')
         if logo_white_file and logo_white_file.filename:
             url = save_upload(logo_white_file)
             if url:
                 SiteSetting.set('logo_white_url', url)
-                
-        flash('Ayarlar kaydedildi.', 'success')
+        flash('Kaydedildi.', 'success')
         return redirect(url_for('admin_settings'))
     settings = {s.key: s.value for s in SiteSetting.query.all()}
     return render_template('admin/settings.html', settings=settings, setting_defs=setting_defs)
@@ -681,12 +668,6 @@ def init_db():
             'logo_url': '/Assets/logo-color.png',
             'logo_white_url': '/Assets/logo-disi.png',
             'google_maps_embed': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9FMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str',
-            'home_practice_title': 'Çalışma Alanlarımız',
-            'home_practice_subtitle': 'Başlıca uzmanlık alanlarımızı keşfedin.',
-            'home_articles_title': 'Son Makaleler',
-            'home_articles_subtitle': 'Güncel hukuki içerikler ve makaleler.',
-            'contact_section_title': 'İletişim',
-            'contact_section_subtitle': 'Sorularınız ve hukuki danışmanlık talepleriniz için bize ulaşın.',
         }
         for key, value in defaults.items():
             if not SiteSetting.query.filter_by(key=key).first():
@@ -825,7 +806,7 @@ def dbcheck():
               for h in HeroSection.query.all()]
     settings_rows = [{'key': s.key, 'value': s.value}
                      for s in SiteSetting.query.filter(
-                         SiteSetting.key.in_(['logo_url', 'logo_white_url', 'contact_section_title'])
+                         SiteSetting.key.in_(['logo_url', 'logo_white_url', 'contact_address'])
                      ).all()]
     return jsonify({'heroes': heroes, 'settings': settings_rows})
 
