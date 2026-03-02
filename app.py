@@ -692,23 +692,8 @@ def init_db():
             if not SiteSetting.query.filter_by(key=key).first():
                 db.session.add(SiteSetting(key=key, value=value))
 
-        # Logo: her deployment'ta doğru değerleri zorla yaz (DB'de eski değer kalmasın)
-        _LOGO_COLOR = '/Assets/logo-color.png'
-        _LOGO_WHITE = '/Assets/logo-disi.png'
-        logo_setting = SiteSetting.query.filter_by(key='logo_url').first()
-        if not logo_setting:
-            logo_setting = SiteSetting(key='logo_url', value=_LOGO_COLOR)
-            db.session.add(logo_setting)
-        else:
-            logo_setting.value = _LOGO_COLOR
-            db.session.add(logo_setting)
-        logo_white_setting = SiteSetting.query.filter_by(key='logo_white_url').first()
-        if not logo_white_setting:
-            logo_white_setting = SiteSetting(key='logo_white_url', value=_LOGO_WHITE)
-            db.session.add(logo_white_setting)
-        else:
-            logo_white_setting.value = _LOGO_WHITE
-            db.session.add(logo_white_setting)
+        # Logo: defaults dict'i zaten yukarıda "if not exists" mantığıyla ekliyor.
+        # Burada ayrıca zorla-üzerine-yazma YAPILMAZ — admin değişiklikleri korunur.
 
         # Harita embed: eski q= parametre URL'sini embed URL'siyle değiştir
         _MAP = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9EMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str'
@@ -735,10 +720,7 @@ def init_db():
             if not HeroSection.query.filter_by(page=page).first():
                 db.session.add(HeroSection(page=page, title=title, subtitle=subtitle, image_url=image_url))
 
-        index_hero = HeroSection.query.filter_by(page='index').first()
-        if index_hero and index_hero.image_url != '/static/uploads/Atakule3.png':
-            index_hero.image_url = '/static/uploads/Atakule3.png'
-            db.session.add(index_hero)
+        # NOT: index hero zor-sıfırlama kaldırıldı — admin değişikliklerini korumak için.
 
         # Ekip üyeleri
         if TeamMember.query.count() == 0:
