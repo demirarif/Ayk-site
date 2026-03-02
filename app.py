@@ -228,53 +228,46 @@ def index():
     hero = HeroSection.query.filter_by(page='index').first()
     areas = PracticeArea.query.filter_by(is_active=True).order_by(PracticeArea.order_index).limit(6).all()
     articles = Article.query.filter_by(is_published=True).order_by(Article.published_at.desc()).limit(3).all()
-    settings = site_settings()
-    return render_template('index.html', hero=hero, areas=areas, articles=articles, settings=settings)
+    return render_template('index.html', hero=hero, areas=areas, articles=articles)
 
 
 @app.route('/hakkimizda')
 def hakkimizda():
     hero = HeroSection.query.filter_by(page='hakkimizda').first()
-    settings = site_settings()
-    return render_template('hakkimizda.html', hero=hero, settings=settings)
+    return render_template('hakkimizda.html', hero=hero)
 
 
 @app.route('/ekibimiz')
 def ekibimiz():
     hero = HeroSection.query.filter_by(page='ekibimiz').first()
     team = TeamMember.query.filter_by(is_active=True).order_by(TeamMember.order_index).all()
-    settings = site_settings()
-    return render_template('ekibimiz.html', hero=hero, team=team, settings=settings)
+    return render_template('ekibimiz.html', hero=hero, team=team)
 
 
 @app.route('/faaliyet')
 def faaliyet():
     hero = HeroSection.query.filter_by(page='faaliyet').first()
     areas = PracticeArea.query.filter_by(is_active=True).order_by(PracticeArea.order_index).all()
-    settings = site_settings()
-    return render_template('faaliyet.html', hero=hero, areas=areas, settings=settings)
+    return render_template('faaliyet.html', hero=hero, areas=areas)
 
 
 @app.route('/makaleler')
 def makaleler():
     hero = HeroSection.query.filter_by(page='makaleler').first()
     articles = Article.query.filter_by(is_published=True).order_by(Article.published_at.desc()).all()
-    settings = site_settings()
-    return render_template('makaleler.html', hero=hero, articles=articles, settings=settings)
+    return render_template('makaleler.html', hero=hero, articles=articles)
 
 
 @app.route('/makaleler/<slug>')
 def makale_detay(slug):
     article = Article.query.filter_by(slug=slug, is_published=True).first_or_404()
-    settings = site_settings()
-    return render_template('makale_detay.html', article=article, settings=settings)
+    return render_template('makale_detay.html', article=article)
 
 
 @app.route('/iletisim')
 def iletisim():
     hero = HeroSection.query.filter_by(page='iletisim').first()
-    settings = site_settings()
-    return render_template('iletisim.html', hero=hero, settings=settings)
+    return render_template('iletisim.html', hero=hero)
 
 
 @app.route('/iletisim/gonder', methods=['POST'])
@@ -621,8 +614,8 @@ def uploaded_file(filename):
 @login_required
 def admin_logo_reset():
     """DB'deki logo URL'lerini varsayılan değerlerle zorla güncelle."""
-    _LOGO = '/Assets/logo-color.png'
-    _LOGO_WHITE = '/Assets/logo-disi.png'
+    _LOGO = '/Assets/logo-color.webp'
+    _LOGO_WHITE = '/Assets/logo-disi.webp'
     SiteSetting.set('logo_url', _LOGO)
     SiteSetting.set('logo_white_url', _LOGO_WHITE)
     flash('Logolar varsayılana sıfırlandı.', 'success')
@@ -664,8 +657,8 @@ def init_db():
             'contact_hours': 'Pazartesi - Cuma: 09:00 - 18:00',
             'about_short': 'Ulusal ve uluslararası hukuki danışmanlık & avukatlık hizmetleri.',
             'footer_text': '© 2026 KYA Hukuk ve Danışmanlık. Tüm hakları saklıdır.',
-            'logo_url': '/Assets/logo-color.png',
-            'logo_white_url': '/Assets/logo-disi.png',
+            'logo_url': '/Assets/logo-color.webp',
+            'logo_white_url': '/Assets/logo-disi.webp',
             'google_maps_embed': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9FMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str',
             # Sayfa bölüm başlıkları — admin'den değiştirilemez ama DB'de kayıtlı; template fallback'ler çalışmaya devam eder
             'home_practice_title': 'Çalışma Alanlarımız',
@@ -690,6 +683,20 @@ def init_db():
         # Logo: defaults dict'i zaten yukarıda "if not exists" mantığıyla ekliyor.
         # Burada ayrıca zorla-üzerine-yazma YAPILMAZ — admin değişiklikleri korunur.
 
+        # Görselleri WebP'ye geçir (sadece hâlâ eski PNG default URL'si varsa)
+        _logo_row = SiteSetting.query.filter_by(key='logo_url').first()
+        if _logo_row and _logo_row.value == '/Assets/logo-color.png':
+            _logo_row.value = '/Assets/logo-color.webp'
+            db.session.add(_logo_row)
+        _logo_white_row = SiteSetting.query.filter_by(key='logo_white_url').first()
+        if _logo_white_row and _logo_white_row.value == '/Assets/logo-disi.png':
+            _logo_white_row.value = '/Assets/logo-disi.webp'
+            db.session.add(_logo_white_row)
+        _hero_index = HeroSection.query.filter_by(page='index').first()
+        if _hero_index and _hero_index.image_url in ('/static/uploads/Atakule3.png', '/static/uploads/Atakule3.webp'):
+            _hero_index.image_url = '/Assets/Atakule3.webp'
+            db.session.add(_hero_index)
+
         # Harita embed: eski q= parametre URL'sini embed URL'siyle değiştir
         _MAP = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9EMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str'
         map_setting = SiteSetting.query.filter_by(key='google_maps_embed').first()
@@ -699,7 +706,7 @@ def init_db():
 
         # Hero bölümleri
         hero_defaults = [
-            ('index', 'KELEŞTEMUR | YİĞİT | ALTAY', 'HUKUK VE DANIŞMANLIK', '/static/uploads/Atakule3.png'),
+            ('index', 'KELEŞTEMUR | YİĞİT | ALTAY', 'HUKUK VE DANIŞMANLIK', '/Assets/Atakule3.webp'),
             ('hakkimizda', 'Hakkımızda', 'Hukukun Üstünlüğü ve Adalet İçin Buradayız',
              'https://images.unsplash.com/photo-1505664194779-8beaceb93744?w=1600&q=80'),
             ('ekibimiz', 'Avukat Kadromuz', 'Uzman ve Deneyimli Hukukçularımız',
