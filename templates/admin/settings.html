@@ -30,9 +30,9 @@
       </div>
     </div>
     <div class="form-row">
-      <label>Google Maps Embed Kodu</label>
-      <textarea name="google_maps_embed" rows="3" placeholder='&lt;iframe src="https://maps.google.com/..." ...&gt;&lt;/iframe&gt;'>{{ settings.get('google_maps_embed','') }}</textarea>
-      <p class="hint">Google Maps → Paylaş → Haritayı göm → HTML kodunu yapıştırın</p>
+      <label>Google Maps Embed URL</label>
+      <textarea name="google_maps_embed" rows="3" placeholder="https://www.google.com/maps/embed?pb=...">{{ settings.get('google_maps_embed','') }}</textarea>
+      <p class="hint">Google Maps → Paylaş → Haritayı göm → <strong>src="..."</strong> içindeki URL'yi kopyalayın (iframe HTML'ini değil, sadece URL'yi yapıştırın)</p>
     </div>
     <button type="submit" class="btn btn-primary btn-sm" style="margin-top:8px;">
       <i class="fa-solid fa-floppy-disk"></i> Kaydet
@@ -56,17 +56,21 @@
 </form>
 
 {# ── Logo & Footer ────────────────────────────────────── #}
+{# Logo sıfırlama formu — nested form olmaktan çıkarmak için DIŞARIDA tanımlanıyor #}
+<form method="POST" action="{{ url_for('admin_logo_reset') }}" id="frm-logo-reset" style="display:none;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+</form>
+
 <form method="POST" action="{{ url_for('admin_settings') }}" enctype="multipart/form-data" style="max-width:820px;">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="card">
     <div class="card-header">
       <h2><i class="fa-solid fa-palette"></i> Logo & Footer</h2>
-      <form method="POST" action="{{ url_for('admin_logo_reset') }}" style="margin:0;">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="btn btn-ghost btn-sm" onclick="return confirm('Logolar varsayılan logo-color.png\'e sıfırlanacak. Devam?')">
-          <i class="fa-solid fa-rotate-left"></i> Logo Sıfırla
-        </button>
-      </form>
+      {# form="frm-logo-reset" bu butonu dıştaki form yerine üstteki standalone formla ilişkilendirir (HTML5) #}
+      <button type="submit" form="frm-logo-reset" class="btn btn-ghost btn-sm"
+              onclick="return confirm('Logolar varsayılan logo-color.png\'e sıfırlanacak. Devam?')">
+        <i class="fa-solid fa-rotate-left"></i> Logo Sıfırla
+      </button>
     </div>
 
     <h3 style="margin-bottom:10px; font-size:.95rem; color:var(--bordeaux);">Renkli Logo (Navbar - Açık Zemin)</h3>

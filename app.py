@@ -3,7 +3,6 @@ import re
 import base64
 import requests as http_client
 from datetime import datetime
-from functools import wraps
 
 from flask import (Flask, render_template, redirect, url_for,
                    request, flash, abort, jsonify, send_from_directory)
@@ -668,6 +667,21 @@ def init_db():
             'logo_url': '/Assets/logo-color.png',
             'logo_white_url': '/Assets/logo-disi.png',
             'google_maps_embed': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9FMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str',
+            # Sayfa bölüm başlıkları — admin'den değiştirilemez ama DB'de kayıtlı; template fallback'ler çalışmaya devam eder
+            'home_practice_title': 'Çalışma Alanlarımız',
+            'home_practice_subtitle': 'Başlıca uzmanlık alanlarımızı keşfedin.',
+            'home_articles_title': 'Son Makaleler',
+            'home_articles_subtitle': 'Güncel hukuki içerikler ve makaleler.',
+            'about_values_title': 'Değerlerimiz',
+            'about_values_subtitle': '',
+            'team_section_title': 'Avukat Kadromuz',
+            'team_section_subtitle': '',
+            'areas_section_title': 'Çalışma Alanları',
+            'areas_section_subtitle': '',
+            'articles_section_title': 'Güncel Makaleler',
+            'articles_section_subtitle': '',
+            'contact_section_title': 'İletişim',
+            'contact_section_subtitle': 'Sorularınız ve hukuki danışmanlık talepleriniz için bize ulaşın.',
         }
         for key, value in defaults.items():
             if not SiteSetting.query.filter_by(key=key).first():
@@ -793,22 +807,6 @@ def health():
     except Exception as e:
         info['db'] = f'ERROR: {e}'
     return jsonify(info)
-
-
-@app.route('/dbcheck')
-def dbcheck():
-    """DB içeriğini okumak için geçici debug endpoint (SETUP_KEY ile korumalı)."""
-    key = request.args.get('key', '')
-    expected = os.environ.get('SETUP_KEY', '')
-    if not expected or key != expected:
-        return jsonify({'error': 'Geçersiz anahtar'}), 403
-    heroes = [{'page': h.page, 'title': h.title, 'image_url': h.image_url}
-              for h in HeroSection.query.all()]
-    settings_rows = [{'key': s.key, 'value': s.value}
-                     for s in SiteSetting.query.filter(
-                         SiteSetting.key.in_(['logo_url', 'logo_white_url', 'contact_address'])
-                     ).all()]
-    return jsonify({'heroes': heroes, 'settings': settings_rows})
 
 
 @app.route('/setup')
