@@ -814,6 +814,22 @@ def health():
     return jsonify(info)
 
 
+@app.route('/dbcheck')
+def dbcheck():
+    """DB içeriğini okumak için geçici debug endpoint (SETUP_KEY ile korumalı)."""
+    key = request.args.get('key', '')
+    expected = os.environ.get('SETUP_KEY', '')
+    if not expected or key != expected:
+        return jsonify({'error': 'Geçersiz anahtar'}), 403
+    heroes = [{'page': h.page, 'title': h.title, 'image_url': h.image_url}
+              for h in HeroSection.query.all()]
+    settings_rows = [{'key': s.key, 'value': s.value}
+                     for s in SiteSetting.query.filter(
+                         SiteSetting.key.in_(['logo_url', 'logo_white_url', 'contact_section_title'])
+                     ).all()]
+    return jsonify({'heroes': heroes, 'settings': settings_rows})
+
+
 @app.route('/setup')
 def setup():
     """
