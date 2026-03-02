@@ -6,7 +6,7 @@ import requests as http_client
 from datetime import datetime
 
 from flask import (Flask, render_template, redirect, url_for,
-                   request, flash, abort, jsonify, send_from_directory)
+                   request, flash, abort, jsonify, send_from_directory, session)
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_wtf.csrf import CSRFProtect
 from werkzeug.utils import secure_filename
@@ -342,7 +342,8 @@ def admin_login():
         password = request.form.get('password', '')
         user = User.query.filter_by(username=username).first()
         if user and user.check_password(password) and user.is_active:
-            login_user(user, remember=True)
+            login_user(user, remember=False)
+            session.permanent = True   # 3 saatlik PERMANENT_SESSION_LIFETIME tetiklenir
             next_page = request.args.get('next')
             return redirect(next_page or url_for('admin_dashboard'))
         flash('Kullanıcı adı veya şifre yanlış.', 'error')
@@ -733,26 +734,35 @@ def admin_logo_reset():
 def init_db():
     with app.app_context():
         db.create_all()
-        admin_username = app.config['ADMIN_USERNAME']
-        admin_password = app.config['ADMIN_PASSWORD']
 
-        # Admin kullanıcı (mevcut 'admin' hesabını yeni kullanıcı adına taşır ve şifreyi günceller)
-        admin = User.query.filter_by(username=admin_username).first()
-        legacy_admin = User.query.filter_by(username='admin').first()
-        if not admin:
-            if legacy_admin:
-                legacy_admin.username = admin_username
-                legacy_admin.set_password(admin_password)
-                admin = legacy_admin
+        # ── İzin verilen kullanıcıları SADECE env var’dan oku — koda kimlik bilgisi yazılmaz ──
+        _env_users = {}
+        for _prefix in ('ADMIN', 'USER2', 'USER3', 'USER4'):
+            _u = (app.config.get(f'{_prefix}_USERNAME') or '').strip()
+            _p = (app.config.get(f'{_prefix}_PASSWORD') or '').strip()
+            if _u and _p:
+                _env_users[_u] = _p
+
+        # DB’de env’de tanımlı olmayan kullanıcıları sil
+        # (Birisi doğrustan DB’ye kullanıcı ekleyemez — her deploy/cold-start temizlenir)
+        for _usr in User.query.all():
+            if _usr.username not in _env_users:
+                db.session.delete(_usr)
+        db.session.flush()
+
+        # Env'de tanımlı her kullanıcıyı oluştur veya etkinleştir
+        # NOT: Zaten varsa şifreye dokunma — dashboard'dan değiştirilebilir
+        for _uname, _upass in _env_users.items():
+            _usr = User.query.filter_by(username=_uname).first()
+            if not _usr:
+                _usr = User(username=_uname, is_active=True)
+                _usr.set_password(_upass)
+                db.session.add(_usr)
+                print(f'✓ Yeni kullanıcı oluşturuldu: {_uname}')
             else:
-                admin = User(username=admin_username)
-                admin.set_password(admin_password)
-                db.session.add(admin)
-            db.session.commit()
-            print(f"✓ Admin kullanıcı hazır: {admin_username}")
-        elif legacy_admin and legacy_admin.id != admin.id:
-            db.session.delete(legacy_admin)
-            db.session.commit()
+                _usr.is_active = True  # devre dışıysa yeniden etkinleştir
+        db.session.commit()
+        print(f'✓ Kullanıcılar senkronize: {list(_env_users.keys())}')
 
         # ── Varsayılan ayarlar (tek sorguda toplu kontrol) ──────────────────
         defaults = {

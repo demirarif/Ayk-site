@@ -1,5 +1,6 @@
 import os
 import re
+from datetime import timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -83,9 +84,19 @@ class Config:
     MAX_CONTENT_LENGTH = 8 * 1024 * 1024
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'gif'}
 
-    # Admin
-    ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'arifdemir')
-    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'qwer1234')
+    # Admin kullanıcıları — kimlik bilgileri SADECE env var'dan okunur, koda yazılmaz
+    ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', '')
+    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', '')
+    USER2_USERNAME = os.environ.get('USER2_USERNAME', '')
+    USER2_PASSWORD = os.environ.get('USER2_PASSWORD', '')
+    USER3_USERNAME = os.environ.get('USER3_USERNAME', '')
+    USER3_PASSWORD = os.environ.get('USER3_PASSWORD', '')
+    USER4_USERNAME = os.environ.get('USER4_USERNAME', '')
+    USER4_PASSWORD = os.environ.get('USER4_PASSWORD', '')
+
+    # Session — girişten 3 saat sonra otomatik sona erer
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=3)
+    SESSION_REFRESH_EACH_REQUEST = False  # 3h girişten itibaren sayılır, aktiviteyle uzamaz
 
     # CSRF
     WTF_CSRF_TIME_LIMIT = 7200
