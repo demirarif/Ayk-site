@@ -22,7 +22,13 @@
         <div class="practice-grid">
             {% for area in areas %}
             <div class="practice-item">
+                {% if area.image_url %}
+                <img src="{{ area.image_url }}" alt="{{ area.title }}"
+                     style="width:100%;height:160px;object-fit:cover;border-radius:6px;margin-bottom:14px;"
+                     loading="lazy">
+                {% else %}
                 <i class="{{ area.icon }}"></i>
+                {% endif %}
                 <h3>{{ area.title }}</h3>
                 {% if area.description %}<p>{{ area.description }}</p>{% endif %}
             </div>

@@ -86,11 +86,27 @@ class PracticeArea(db.Model):
     title = db.Column(db.String(150), nullable=False)
     description = db.Column(db.Text, nullable=True)
     icon = db.Column(db.String(80), default='fas fa-gavel')   # Font Awesome sınıfı
+    image_url = db.Column(db.String(500), nullable=True)       # Alan görseli
     order_index = db.Column(db.Integer, default=0)
     is_active = db.Column(db.Boolean, default=True)
 
     def __repr__(self):
         return f'<PracticeArea {self.title}>'
+
+
+class ContactMessage(db.Model):
+    """İletişim formu mesajları"""
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    email = db.Column(db.String(200), nullable=False)
+    subject = db.Column(db.String(300), nullable=True)
+    message = db.Column(db.Text, nullable=False)
+    is_read = db.Column(db.Boolean, default=False)
+    ip_address = db.Column(db.String(45), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<ContactMessage {self.name} {self.email}>'
 
 
 class Article(db.Model):

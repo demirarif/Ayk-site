@@ -1,0 +1,100 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}İletişim Mesajları{% endblock %}
+{% block page_title %}İletişim Mesajları{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:900px;">
+  <div class="card-header">
+    <h2><i class="fa-solid fa-envelope"></i> Gelen Mesajlar</h2>
+    {% if unread_count > 0 %}
+    <span class="badge badge-red" style="font-size:.85rem;padding:4px 10px;">{{ unread_count }} okunmamış</span>
+    {% endif %}
+  </div>
+
+  {% if msgs %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:24px;"></th>
+          <th>Ad Soyad</th>
+          <th>E-posta</th>
+          <th>Konu</th>
+          <th>Tarih</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in msgs %}
+        <tr id="msg-{{ m.id }}" style="{{ 'font-weight:600;background:#fdf8f8;' if not m.is_read else '' }}">
+          <td style="text-align:center;">
+            {% if not m.is_read %}
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--bordeaux);"></span>
+            {% endif %}
+          </td>
+          <td>{{ m.name }}</td>
+          <td><a href="mailto:{{ m.email }}" style="color:var(--bordeaux);">{{ m.email }}</a></td>
+          <td style="color:#666;font-size:.88rem;">{{ m.subject or '—' }}</td>
+          <td style="color:#888;font-size:.82rem;white-space:nowrap;">{{ m.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+          <td style="text-align:right;white-space:nowrap;">
+            <button class="btn btn-ghost btn-sm"
+                    onclick="toggleMsg({{ m.id }})"
+                    title="Mesajı genişlet"><i class="fa-solid fa-chevron-down"></i></button>
+            {% if not m.is_read %}
+            <form method="POST" action="{{ url_for('admin_message_read', mid=m.id) }}" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-ghost btn-sm" title="Okundu işaretle">
+                <i class="fa-solid fa-check"></i>
+              </button>
+            </form>
+            {% endif %}
+            <form method="POST" action="{{ url_for('admin_message_delete', mid=m.id) }}" style="display:inline;"
+                  onsubmit="return confirm('Bu mesajı silmek istediğinizden emin misiniz?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-ghost btn-sm" style="color:#e53e3e;" title="Sil">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+        <!-- Mesaj içeriği satırı (gizli) -->
+        <tr id="msg-body-{{ m.id }}" style="display:none;">
+          <td colspan="6">
+            <div style="background:#f9f5f5;border-left:3px solid var(--bordeaux);
+                        padding:14px 18px;margin:0 0 8px;border-radius:0 6px 6px 0;
+                        font-size:.9rem;line-height:1.75;white-space:pre-wrap;color:#333;">{{ m.message }}</div>
+            <div style="padding:0 0 10px 4px;">
+              <a href="mailto:{{ m.email }}?subject=Re: {{ m.subject or 'Mesajınız hakkında' }}"
+                 class="btn btn-primary btn-sm">
+                <i class="fa-solid fa-reply"></i> Yanıtla ({{ m.email }})
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:48px 0;color:#a0aec0;">
+    <i class="fa-solid fa-inbox" style="font-size:2.5rem;margin-bottom:12px;display:block;"></i>
+    <p>Henüz mesaj yok.</p>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function toggleMsg(id) {
+  const row = document.getElementById('msg-body-' + id);
+  const isHidden = row.style.display === 'none';
+  row.style.display = isHidden ? 'table-row' : 'none';
+  // Okunmamış işareti kaldır (görsel)
+  if (isHidden) {
+    const r = document.getElementById('msg-' + id);
+    if (r) { r.style.fontWeight = ''; r.style.background = ''; }
+    const dot = r && r.querySelector('span[style*="border-radius:50%"]');
+    if (dot) dot.style.display = 'none';
+  }
+}
+</script>
+{% endblock %}

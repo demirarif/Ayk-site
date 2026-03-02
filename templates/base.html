@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}KYA Hukuk & Danışmanlık{% endblock %}</title>
-    <meta name="description" content="{% block meta_desc %}Keleştemur | Yiğit | Altay Hukuk ve Danışmanlık Ofisi — Ankara{% endblock %}">
+    <meta name="description" content="{{ settings['seo_desc_' + request.endpoint] if settings.get('seo_desc_' + request.endpoint) else 'Keleştemur | Yiğit | Altay Hukuk ve Danışmanlık Ofisi — Ankara, Türkiye' }}">
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="shortcut icon" href="{{ url_for('favicon') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
@@ -85,5 +89,22 @@
         }, 4000);
     </script>
     {% block extra_scripts %}{% endblock %}
+
+    {% if settings.whatsapp_number %}
+    <!-- WhatsApp Yüzen Butonu -->
+    <a href="https://wa.me/{{ settings.whatsapp_number }}"
+       target="_blank" rel="noopener"
+       aria-label="WhatsApp ile iletişime geçin"
+       style="position:fixed;bottom:28px;right:28px;z-index:9999;
+              display:flex;align-items:center;justify-content:center;
+              width:56px;height:56px;border-radius:50%;
+              background:#25d366;color:#fff;font-size:1.6rem;
+              box-shadow:0 4px 16px rgba(0,0,0,0.22);
+              transition:transform .2s,box-shadow .2s;"
+       onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 6px 24px rgba(0,0,0,0.3)'"
+       onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 16px rgba(0,0,0,0.22)'">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    {% endif %}
 </body>
 </html>

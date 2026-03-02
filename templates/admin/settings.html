@@ -119,4 +119,48 @@
   </div>
 </form>
 
+{# ── WhatsApp ─────────────────────────────────────────── #}
+<form method="POST" action="{{ url_for('admin_settings') }}" style="max-width:820px;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="card">
+    <div class="card-header"><h2><i class="fa-brands fa-whatsapp" style="color:#25d366;"></i> WhatsApp Yüzen Butonu</h2></div>
+    <div class="form-row">
+      <label>WhatsApp Numarası</label>
+      <input type="text" name="whatsapp_number" value="{{ settings.get('whatsapp_number','') }}"
+             placeholder="905312345678  (+ olmadan, ülke kodu dahil)">
+      <p class="hint">Dolu bırakırsanız sağ altta yeşil WhatsApp butonu görünür. Boş bırakırsanız buton gizlenir.</p>
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm" style="margin-top:8px;">
+      <i class="fa-solid fa-floppy-disk"></i> Kaydet
+    </button>
+  </div>
+</form>
+
+{# ── SEO Meta Açıklamaları ────────────────────────────── #}
+<form method="POST" action="{{ url_for('admin_settings') }}" style="max-width:820px;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="card">
+    <div class="card-header"><h2><i class="fa-solid fa-magnifying-glass"></i> SEO Meta Açıklamaları</h2></div>
+    <p style="color:#718096;font-size:.88rem;margin-bottom:16px;">
+      Google arama sonuçlarında sayfa altında görünecek açıklamalar (max ~155 karakter tavsiye edilir).
+    </p>
+    {% for key, label in [
+        ('seo_desc_index',      'Anasayfa'),
+        ('seo_desc_hakkimizda', 'Hakkımızda'),
+        ('seo_desc_ekibimiz',   'Ekibimiz'),
+        ('seo_desc_faaliyet',   'Çalışma Alanları'),
+        ('seo_desc_makaleler',  'Makaleler'),
+        ('seo_desc_iletisim',   'İletişim'),
+    ] %}
+    <div class="form-row">
+      <label>{{ label }}</label>
+      <textarea name="{{ key }}" rows="2">{{ settings.get(key,'') }}</textarea>
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary btn-sm" style="margin-top:8px;">
+      <i class="fa-solid fa-floppy-disk"></i> Kaydet
+    </button>
+  </div>
+</form>
+
 {% endblock %}

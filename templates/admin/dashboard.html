@@ -32,6 +32,13 @@
       <div class="stat-value">{{ stats.areas }}</div>
     </div>
   </div>
+  <a href="{{ url_for('admin_messages') }}" class="stat-card" style="text-decoration:none;color:inherit;{{ 'outline:2px solid var(--bordeaux);' if stats.unread_messages > 0 else '' }}">
+    <div class="stat-icon" style="background:#fff0f3;color:var(--bordeaux);"><i class="fa-solid fa-envelope"></i></div>
+    <div>
+      <div class="stat-label">Mesajlar {% if stats.unread_messages > 0 %}<span style="color:var(--bordeaux);font-weight:700;">({{ stats.unread_messages }} okunmamış)</span>{% endif %}</div>
+      <div class="stat-value">{{ stats.total_messages }}</div>
+    </div>
+  </a>
 </div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">

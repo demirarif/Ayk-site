@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}Yönetim Paneli{% endblock %} — KYA Hukuk</title>
+<link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -34,6 +35,15 @@
       <div class="sidebar-section">Genel</div>
       <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if request.endpoint == 'admin_dashboard' }}">
         <i class="fa-solid fa-gauge"></i> Dashboard
+      </a>
+      <a href="{{ url_for('admin_messages') }}" class="{{ 'active' if request.endpoint in ['admin_messages'] }}" style="display:flex;align-items:center;justify-content:space-between;">
+        <span><i class="fa-solid fa-envelope"></i> Mesajlar</span>
+        {% if unread_messages_count > 0 %}
+        <span style="background:var(--bordeaux);color:#fff;border-radius:999px;
+                     font-size:.7rem;padding:1px 7px;font-weight:700;min-width:20px;text-align:center;">
+          {{ unread_messages_count }}
+        </span>
+        {% endif %}
       </a>
 
       <div class="sidebar-section">İçerik</div>

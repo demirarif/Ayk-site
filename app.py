@@ -12,7 +12,7 @@ from flask_wtf.csrf import CSRFProtect
 from werkzeug.utils import secure_filename
 
 from config import Config
-from models import db, User, SiteSetting, HeroSection, TeamMember, PracticeArea, Article
+from models import db, User, SiteSetting, HeroSection, TeamMember, PracticeArea, Article, ContactMessage
 
 # ─────────────────────────────────────────
 # App kurulum
@@ -232,8 +232,17 @@ def _invalidate_settings_cache():
 
 @app.context_processor
 def inject_settings():
-    """Tüm şablonlarda settings değişkeni hazır bulunsun."""
-    return {'settings': site_settings()}
+    """Tüm şablonlarda settings ve unread_messages_count hazır bulunsun."""
+    ctx = {'settings': site_settings()}
+    # Admin sayfalarında okunmamış mesaj sayısını ekle (sidebar badge için)
+    if request.endpoint and request.endpoint.startswith('admin_') and current_user.is_authenticated:
+        try:
+            ctx['unread_messages_count'] = ContactMessage.query.filter_by(is_read=False).count()
+        except Exception:
+            ctx['unread_messages_count'] = 0
+    else:
+        ctx['unread_messages_count'] = 0
+    return ctx
 
 
 # ─────────────────────────────────────────
@@ -289,11 +298,35 @@ def iletisim():
 
 @app.route('/iletisim/gonder', methods=['POST'])
 def iletisim_gonder():
-    """İletişim formu (basit loglama, ileride e-posta entegre edilir)."""
-    name = request.form.get('name', '')
-    email = request.form.get('email', '')
-    message = request.form.get('message', '')
-    app.logger.info(f"İletişim formu: {name} <{email}>: {message[:100]}")
+    """İletişim formu — doğrulama, DB kaydı."""
+    name    = request.form.get('name', '').strip()
+    email   = request.form.get('email', '').strip()
+    subject = request.form.get('subject', '').strip()
+    message = request.form.get('message', '').strip()
+
+    # Sunucu tarafı doğrulama
+    errors = []
+    if len(name) < 2:
+        errors.append('Ad Soyad en az 2 karakter olmalı.')
+    if not re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', email):
+        errors.append('Geçerli bir e-posta adresi girin.')
+    if len(message) < 10:
+        errors.append('Mesajınız en az 10 karakter olmalı.')
+    if errors:
+        for err in errors:
+            flash(err, 'error')
+        return redirect(url_for('iletisim'))
+
+    msg = ContactMessage(
+        name=name,
+        email=email,
+        subject=subject or None,
+        message=message,
+        ip_address=request.remote_addr,
+    )
+    db.session.add(msg)
+    db.session.commit()
+    app.logger.info(f"İletişim formu kaydedildi: {name} <{email}>")
     flash('Mesajınız alındı. En kısa sürede dönüş yapacağız.', 'success')
     return redirect(url_for('iletisim'))
 
@@ -334,6 +367,8 @@ def admin_dashboard():
         'articles': Article.query.filter_by(is_published=True).count(),
         'drafts': Article.query.filter_by(is_published=False).count(),
         'areas': PracticeArea.query.filter_by(is_active=True).count(),
+        'total_messages': ContactMessage.query.count(),
+        'unread_messages': ContactMessage.query.filter_by(is_read=False).count(),
     }
     recent_articles = Article.query.order_by(Article.created_at.desc()).limit(5).all()
     return render_template('admin/dashboard.html', stats=stats, recent_articles=recent_articles)
@@ -501,20 +536,27 @@ def admin_areas():
 def admin_areas_save():
     """Tüm alanları toplu kaydet/güncelle"""
     PracticeArea.query.delete()
-    titles = request.form.getlist('title[]')
-    descs  = request.form.getlist('desc[]')
-    icons  = request.form.getlist('icon[]')
-    actives = request.form.getlist('active[]')   # aktif checkbox indeksleri
+    titles      = request.form.getlist('title[]')
+    descs       = request.form.getlist('desc[]')
+    icons       = request.form.getlist('icon[]')
+    image_urls  = request.form.getlist('image_url[]')   # mevcut/dış URL
+    image_files = request.files.getlist('image_file[]')  # yeni yükleme
+    actives     = request.form.getlist('active[]')
     for i, title in enumerate(titles):
-        if title.strip():
-            area = PracticeArea(
-                title=title.strip(),
-                description=descs[i] if i < len(descs) else '',
-                icon=icons[i] if i < len(icons) else 'fas fa-gavel',
-                order_index=i,
-                is_active=(str(i) in actives),
-            )
-            db.session.add(area)
+        if not title.strip():
+            continue
+        # Görsel: yeni dosya yüklendiyse kullan, yoksa mevcut URL'yi koru
+        uploaded = save_upload(image_files[i] if i < len(image_files) else None)
+        area_image = uploaded or (image_urls[i].strip() if i < len(image_urls) else '')
+        area = PracticeArea(
+            title=title.strip(),
+            description=descs[i] if i < len(descs) else '',
+            icon=icons[i] if i < len(icons) else 'fas fa-gavel',
+            image_url=area_image or None,
+            order_index=i,
+            is_active=(str(i) in actives),
+        )
+        db.session.add(area)
     db.session.commit()
     flash('Çalışma alanları güncellendi.', 'success')
     return redirect(url_for('admin_areas'))
@@ -568,10 +610,17 @@ def admin_settings():
         ('contact_email', 'E-posta', 'email'),
         ('contact_hours', 'Çalışma Saatleri', 'text'),
         ('google_maps_embed', 'Google Maps Embed URL', 'text'),
+        ('whatsapp_number', 'WhatsApp Numarası (ülke koduyla, başında + olmadan, örn: 905312345678)', 'text'),
         ('about_short', 'Kısa Tanıtım (Alt Başlık)', 'textarea'),
         ('logo_url', 'Logo URL (Açık Zemin - Renkli)', 'text'),
         ('logo_white_url', 'Logo URL (Koyu Zemin - Beyaz)', 'text'),
         ('footer_text', 'Footer Metin', 'textarea'),
+        ('seo_desc_index', 'SEO Açıklaması — Anasayfa', 'textarea'),
+        ('seo_desc_hakkimizda', 'SEO Açıklaması — Hakkımızda', 'textarea'),
+        ('seo_desc_ekibimiz', 'SEO Açıklaması — Ekibimiz', 'textarea'),
+        ('seo_desc_faaliyet', 'SEO Açıklaması — Çalışma Alanları', 'textarea'),
+        ('seo_desc_makaleler', 'SEO Açıklaması — Makaleler', 'textarea'),
+        ('seo_desc_iletisim', 'SEO Açıklaması — İletişim', 'textarea'),
     ]
     if request.method == 'POST':
         # Her form yalnızca kendi alanını gönderir;
@@ -620,12 +669,51 @@ def admin_change_password():
     return render_template('admin/change_password.html')
 
 
+# ── İletişim Mesajları ─────────────────────
+
+@app.route('/admin/mesajlar')
+@login_required
+def admin_messages():
+    msgs = ContactMessage.query.order_by(ContactMessage.created_at.desc()).all()
+    unread_count = ContactMessage.query.filter_by(is_read=False).count()
+    return render_template('admin/messages.html', msgs=msgs, unread_count=unread_count)
+
+
+@app.route('/admin/mesajlar/<int:mid>/oku', methods=['POST'])
+@login_required
+def admin_message_read(mid):
+    msg = db.session.get(ContactMessage, mid) or abort(404)
+    msg.is_read = True
+    db.session.commit()
+    return redirect(url_for('admin_messages'))
+
+
+@app.route('/admin/mesajlar/<int:mid>/sil', methods=['POST'])
+@login_required
+def admin_message_delete(mid):
+    msg = db.session.get(ContactMessage, mid) or abort(404)
+    db.session.delete(msg)
+    db.session.commit()
+    flash('Mesaj silindi.', 'info')
+    return redirect(url_for('admin_messages'))
+
+
 # ─────────────────────────────────────────
-# Uploads serve
+# Uploads serve + Favicon
 # ─────────────────────────────────────────
 @app.route('/static/uploads/<path:filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+
+@app.route('/favicon.ico')
+@app.route('/favicon.svg')
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, 'static'),
+        'favicon.svg',
+        mimetype='image/svg+xml',
+    )
 
 
 @app.route('/admin/logo-sifirla', methods=['POST'])
@@ -679,6 +767,7 @@ def init_db():
             'logo_url': '/Assets/logo-color.webp',
             'logo_white_url': '/Assets/logo-disi.webp',
             'google_maps_embed': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9FMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str',
+            'whatsapp_number': '',
             'home_practice_title': 'Çalışma Alanlarımız',
             'home_practice_subtitle': 'Başlıca uzmanlık alanlarımızı keşfedin.',
             'home_articles_title': 'Son Makaleler',
@@ -693,12 +782,32 @@ def init_db():
             'articles_section_subtitle': '',
             'contact_section_title': 'İletişim',
             'contact_section_subtitle': 'Sorularınız ve hukuki danışmanlık talepleriniz için bize ulaşın.',
+            # Sayfa bazlı SEO meta açıklamaları
+            'seo_desc_index':      'KYA Hukuk ve Danışmanlık — Ankara\'da ticaret, ceza, idare ve özel hukuk alanlarında uzman avukatlık hizmetleri.',
+            'seo_desc_hakkimizda': 'Keleştemur | Yiğit | Altay Hukuk ve Danışmanlık Ofisi hakkında bilgi alın. 2020\'den bu yana Ankara\'da güvenilir hukuki danışmanlık.',
+            'seo_desc_ekibimiz':   'KYA Hukuk avukat kadrosu: Av. Mehmet Emre Yiğit, Av. Tevfik Keleştemur, Av. Direnç Onat Altay ve diğer uzman hukukçularımız.',
+            'seo_desc_faaliyet':   'KYA Hukuk çalışma alanları: Ticaret Hukuku, Ceza Hukuku, İdare Hukuku, Sözleşmeler, Fikri Mülkiyet ve daha fazlası.',
+            'seo_desc_makaleler':  'KYA Hukuk güncel hukuki makaleler, içtihat değerlendirmeleri ve hukuki bilgi yazıları.',
+            'seo_desc_iletisim':   'KYA Hukuk ve Danışmanlık ile iletişime geçin. Ankara Balgat ofisimiz, telefon ve e-posta bilgilerimiz.',
         }
         # Bir sorguda mevcut tüm key'leri çek; döngü içinde tek tek sorgu yok
         existing_settings = {s.key: s for s in SiteSetting.query.all()}
         for key, value in defaults.items():
             if key not in existing_settings:
                 db.session.add(SiteSetting(key=key, value=value))
+
+        # ── Kolon migrasyonu: PracticeArea.image_url (mevcut tablo varsa ALTER TABLE) ──
+        from sqlalchemy import text as _text, inspect as _inspect
+        try:
+            inspector = _inspect(db.engine)
+            cols = [c['name'] for c in inspector.get_columns('practice_area')]
+            if 'image_url' not in cols:
+                with db.engine.connect() as _conn:
+                    _conn.execute(_text('ALTER TABLE practice_area ADD COLUMN image_url VARCHAR(500)'))
+                    _conn.commit()
+                print('✓ practice_area.image_url kolonu eklendi.')
+        except Exception as _migr_err:
+            print(f'[migration] practice_area.image_url: {_migr_err}')
 
         # PNG → WebP migration (aynı existing_settings dict'ten yararlan)
         _MIGRATIONS = {
