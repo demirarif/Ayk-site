@@ -63,10 +63,17 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     if _is_postgres:
-        # Vercel serverless: kalıcı pool yok
-        from sqlalchemy.pool import NullPool
+        # Vercel serverless: Lambda container ısındıktan sonra bağlantıyı yeniden kullan.
+        # NullPool her request'te yeni TCP bağlantısı açtığı için +300-500ms ekliyordu.
+        # pool_size=1: tek bağlantı yeterli (serverless tek iş parçacığı).
+        # pool_pre_ping: stale bağlantıları tespit edip yeniden bağlanır.
+        # pool_recycle=300: 5 dakikada bir bağlantıyı yenile (Neon idle timeout önlemi).
         SQLALCHEMY_ENGINE_OPTIONS = {
-            'poolclass': NullPool,
+            'pool_size': 1,
+            'max_overflow': 2,
+            'pool_timeout': 10,
+            'pool_recycle': 300,
+            'pool_pre_ping': True,
         }
     else:
         SQLALCHEMY_ENGINE_OPTIONS = {}

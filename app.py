@@ -1,5 +1,6 @@
 import os
 import re
+import time
 import base64
 import requests as http_client
 from datetime import datetime
@@ -208,9 +209,25 @@ def save_upload(file):
         return None
 
 
-def site_settings():
-    """Tüm ayarları dict olarak döndürür (template context)."""
-    return {s.key: s.value for s in SiteSetting.query.all()}
+_settings_cache: dict = {}
+_settings_cache_ts: float = 0.0
+_SETTINGS_TTL = 60  # saniye — admin kaydettiğinde cache sıfırlanır
+
+
+def site_settings() -> dict:
+    """Tüm ayarları dict olarak döndürür; 60 sn TTL önbellek kullanır."""
+    global _settings_cache, _settings_cache_ts
+    if time.time() - _settings_cache_ts < _SETTINGS_TTL and _settings_cache:
+        return _settings_cache
+    _settings_cache = {s.key: s.value for s in SiteSetting.query.all()}
+    _settings_cache_ts = time.time()
+    return _settings_cache
+
+
+def _invalidate_settings_cache():
+    """Admin bir ayar değiştirdiğinde cache'i hemen sıfırla."""
+    global _settings_cache_ts
+    _settings_cache_ts = 0.0
 
 
 @app.context_processor
@@ -574,6 +591,7 @@ def admin_settings():
             if url:
                 SiteSetting.set('logo_white_url', url)
         flash('Kaydedildi.', 'success')
+        _invalidate_settings_cache()
         return redirect(url_for('admin_settings'))
     settings = {s.key: s.value for s in SiteSetting.query.all()}
     return render_template('admin/settings.html', settings=settings, setting_defs=setting_defs)
@@ -618,6 +636,7 @@ def admin_logo_reset():
     _LOGO_WHITE = '/Assets/logo-disi.webp'
     SiteSetting.set('logo_url', _LOGO)
     SiteSetting.set('logo_white_url', _LOGO_WHITE)
+    _invalidate_settings_cache()
     flash('Logolar varsayılana sıfırlandı.', 'success')
     return redirect(url_for('admin_settings'))
 
@@ -649,7 +668,7 @@ def init_db():
             db.session.delete(legacy_admin)
             db.session.commit()
 
-        # Varsayılan ayarlar
+        # ── Varsayılan ayarlar (tek sorguda toplu kontrol) ──────────────────
         defaults = {
             'contact_address': 'Balgat Mahallesi, Ziyabey Caddesi No: 14/8, Çankaya / ANKARA',
             'contact_phone': '+90 312 123 45 67',
@@ -660,7 +679,6 @@ def init_db():
             'logo_url': '/Assets/logo-color.webp',
             'logo_white_url': '/Assets/logo-disi.webp',
             'google_maps_embed': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9FMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str',
-            # Sayfa bölüm başlıkları — admin'den değiştirilemez ama DB'de kayıtlı; template fallback'ler çalışmaya devam eder
             'home_practice_title': 'Çalışma Alanlarımız',
             'home_practice_subtitle': 'Başlıca uzmanlık alanlarımızı keşfedin.',
             'home_articles_title': 'Son Makaleler',
@@ -676,35 +694,29 @@ def init_db():
             'contact_section_title': 'İletişim',
             'contact_section_subtitle': 'Sorularınız ve hukuki danışmanlık talepleriniz için bize ulaşın.',
         }
+        # Bir sorguda mevcut tüm key'leri çek; döngü içinde tek tek sorgu yok
+        existing_settings = {s.key: s for s in SiteSetting.query.all()}
         for key, value in defaults.items():
-            if not SiteSetting.query.filter_by(key=key).first():
+            if key not in existing_settings:
                 db.session.add(SiteSetting(key=key, value=value))
 
-        # Logo: defaults dict'i zaten yukarıda "if not exists" mantığıyla ekliyor.
-        # Burada ayrıca zorla-üzerine-yazma YAPILMAZ — admin değişiklikleri korunur.
-
-        # Görselleri WebP'ye geçir (sadece hâlâ eski PNG default URL'si varsa)
-        _logo_row = SiteSetting.query.filter_by(key='logo_url').first()
-        if _logo_row and _logo_row.value == '/Assets/logo-color.png':
-            _logo_row.value = '/Assets/logo-color.webp'
-            db.session.add(_logo_row)
-        _logo_white_row = SiteSetting.query.filter_by(key='logo_white_url').first()
-        if _logo_white_row and _logo_white_row.value == '/Assets/logo-disi.png':
-            _logo_white_row.value = '/Assets/logo-disi.webp'
-            db.session.add(_logo_white_row)
-        _hero_index = HeroSection.query.filter_by(page='index').first()
-        if _hero_index and _hero_index.image_url in ('/static/uploads/Atakule3.png', '/static/uploads/Atakule3.webp'):
-            _hero_index.image_url = '/Assets/Atakule3.webp'
-            db.session.add(_hero_index)
+        # PNG → WebP migration (aynı existing_settings dict'ten yararlan)
+        _MIGRATIONS = {
+            'logo_url':       ('/Assets/logo-color.png',  '/Assets/logo-color.webp'),
+            'logo_white_url': ('/Assets/logo-disi.png',   '/Assets/logo-disi.webp'),
+        }
+        for key, (old_val, new_val) in _MIGRATIONS.items():
+            row = existing_settings.get(key)
+            if row and row.value == old_val:
+                row.value = new_val
 
         # Harita embed: eski q= parametre URL'sini embed URL'siyle değiştir
         _MAP = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9EMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str'
-        map_setting = SiteSetting.query.filter_by(key='google_maps_embed').first()
-        if map_setting and ('maps?q=' in str(map_setting.value or '') or not map_setting.value):
-            map_setting.value = _MAP
-            db.session.add(map_setting)
+        map_row = existing_settings.get('google_maps_embed')
+        if map_row and ('maps?q=' in str(map_row.value or '') or not map_row.value):
+            map_row.value = _MAP
 
-        # Hero bölümleri
+        # ── Hero bölümleri (tek sorguda toplu kontrol) ───────────────────────
         hero_defaults = [
             ('index', 'KELEŞTEMUR | YİĞİT | ALTAY', 'HUKUK VE DANIŞMANLIK', '/Assets/Atakule3.webp'),
             ('hakkimizda', 'Hakkımızda', 'Hukukun Üstünlüğü ve Adalet İçin Buradayız',
@@ -718,11 +730,15 @@ def init_db():
             ('iletisim', 'İletişim', 'Bize Ulaşın',
              'https://images.unsplash.com/photo-1497366412874-3415097a27e7?w=1600&q=80'),
         ]
+        existing_heroes = {h.page: h for h in HeroSection.query.all()}
         for page, title, subtitle, image_url in hero_defaults:
-            if not HeroSection.query.filter_by(page=page).first():
+            if page not in existing_heroes:
                 db.session.add(HeroSection(page=page, title=title, subtitle=subtitle, image_url=image_url))
 
-        # NOT: index hero zor-sıfırlama kaldırıldı — admin değişikliklerini korumak için.
+        # Hero WebP migration
+        idx_hero = existing_heroes.get('index')
+        if idx_hero and idx_hero.image_url in ('/static/uploads/Atakule3.png', '/static/uploads/Atakule3.webp'):
+            idx_hero.image_url = '/Assets/Atakule3.webp'
 
         # Ekip üyeleri
         if TeamMember.query.count() == 0:
