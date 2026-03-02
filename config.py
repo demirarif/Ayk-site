@@ -49,12 +49,18 @@ def _pick_db_url():
         if val and val.startswith(('postgres', 'sqlite')):
             print(f'[config] DB URL kaynağı: {key}')
             return val
-    print('[config] DB URL bulunamadı, SQLite kullanılıyor.')
+    _on_vercel = os.environ.get('VERCEL', '') == '1'
+    if _on_vercel:
+        # Vercel'de Postgres bulunamadı — veri kaybolmaz ama her instance kendi
+        # SQLite'ını görür. Bu yalnızca geliştirme/test senaryosunda kabul edilebilir.
+        print('[config] UYARI: Vercel ortamında Postgres URL bulunamadı! SQLite geçici kullanılıyor.')
+    else:
+        print('[config] DB URL bulunamadı, SQLite kullanılıyor.')
     return f'sqlite:///{_SQLITE_PATH}'
 
 
 _raw_db_url = _pick_db_url()
-_db_url, _connect_args = _build_db_url(_raw_db_url)
+_db_url, _ = _build_db_url(_raw_db_url)  # _connect_args kullanılmıyor
 _is_postgres = 'postgresql' in _db_url
 
 
@@ -83,6 +89,15 @@ class Config:
     UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
     MAX_CONTENT_LENGTH = 8 * 1024 * 1024
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'gif'}
+
+    # GitHub görsel depolama
+    GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN', '')
+
+    # Vercel ortam bayrağı
+    ON_VERCEL = os.environ.get('VERCEL', '') == '1'
+
+    # Manuel DB kurulum anahtarı
+    SETUP_KEY = os.environ.get('SETUP_KEY', '')
 
     # Admin kullanıcıları — kimlik bilgileri SADECE env var'dan okunur, koda yazılmaz
     ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', '')

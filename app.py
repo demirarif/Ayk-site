@@ -2,6 +2,7 @@ import os
 import re
 import time
 import base64
+import sqlalchemy
 import requests as http_client
 from datetime import datetime
 
@@ -57,7 +58,7 @@ _GH_API    = f'https://api.github.com/repos/{_GH_OWNER}/{_GH_REPO}/contents'
 
 
 def _gh_headers():
-    token = os.environ.get('GITHUB_TOKEN', '')
+    token = app.config.get('GITHUB_TOKEN', '')
     return {
         'Authorization': f'token {token}',
         'Accept': 'application/vnd.github.v3+json',
@@ -93,7 +94,7 @@ def _delete_from_github(url):
     """raw.githubusercontent.com URL'si verilen dosyayı repo'dan siler."""
     if not url or 'raw.githubusercontent.com' not in url:
         return
-    if not os.environ.get('GITHUB_TOKEN'):
+    if not app.config.get('GITHUB_TOKEN'):
         return
     try:
         # URL: https://raw.githubusercontent.com/owner/repo/branch/path
@@ -175,14 +176,14 @@ def save_upload(file):
     file_bytes = file.read()
 
     # GitHub depolama (production)
-    if os.environ.get('GITHUB_TOKEN'):
+    if app.config.get('GITHUB_TOKEN'):
         url = _upload_to_github(filename, file_bytes)
         if not url:
             flash('Görsel GitHub\'a yüklenemedi. GITHUB_TOKEN yetkilerini kontrol edin.', 'error')
         return url
 
     # Vercel'de token yoksa uyarı ver (salt okunur dosya sistemi)
-    if os.environ.get('VERCEL') == '1':
+    if app.config.get('ON_VERCEL'):
         flash('Vercel ortamında görsel yüklemek için GITHUB_TOKEN gereklidir!', 'error')
         return None
 
@@ -805,7 +806,7 @@ def init_db():
                 db.session.add(SiteSetting(key=key, value=value))
 
         # ── Kolon migrasyonu: PracticeArea.image_url (mevcut tablo varsa ALTER TABLE) ──
-        from sqlalchemy import text as _text, inspect as _inspect
+        from sqlalchemy import text as _text, inspect as _inspect  # noqa: F811
         try:
             inspector = _inspect(db.engine)
             cols = [c['name'] for c in inspector.get_columns('practice_area')]
@@ -938,11 +939,10 @@ def health():
     info = {
         'status': 'ok',
         'db_url': app.config['SQLALCHEMY_DATABASE_URI'][:40] + '...',
-        'on_vercel': os.environ.get('VERCEL', 'no'),
+        'on_vercel': app.config.get('ON_VERCEL', False),
     }
     try:
-        with app.app_context():
-            db.session.execute(sqlalchemy.text('SELECT 1'))
+        db.session.execute(sqlalchemy.text('SELECT 1'))
         info['db'] = 'connected'
     except Exception as e:
         info['db'] = f'ERROR: {e}'
@@ -957,7 +957,7 @@ def setup():
     SETUP_KEY env var'ı Vercel'de tanımlanmış olmalı.
     """
     key = request.args.get('key', '')
-    expected = os.environ.get('SETUP_KEY', '')
+    expected = app.config.get('SETUP_KEY', '')
     if not expected or key != expected:
         return jsonify({'error': 'Geçersiz anahtar'}), 403
     try:
