@@ -145,8 +145,8 @@ header {
 }
 
 .page-hero__logo {
-    width: min(600px, 85vw);
-    max-height: 500px;
+    width: min(420px, 75vw);
+    max-height: 350px;
     height: auto;
     margin: 0 auto 16px;
     object-fit: contain;
@@ -425,8 +425,8 @@ footer {
     .page-hero__content { padding: 28px 32px; }
     .logo img { height: 72px; }
     .page-hero__logo {
-        width: min(480px, 80vw);
-        max-height: 350px;
+        width: min(336px, 70vw);
+        max-height: 245px;
     }
     .about-wrap { flex-direction: column; }
     .practice-grid { grid-template-columns: 1fr 1fr; }

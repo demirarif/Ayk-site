@@ -16,8 +16,8 @@
         {% else %}
         <img src="{{ logo_white_fallback }}" alt="KYA Hukuk" class="page-hero__logo">
         {% endif %}
-        <h1 class="page-hero__title">{{ hero.title if hero else 'KELEŞTEMUR | YİĞİT | ALTAY' }}</h1>
-        <div class="page-hero__subtitle">{{ hero.subtitle if hero else 'HUKUK VE DANIŞMANLIK' }}</div>
+        {% if hero and hero.title %}<h1 class="page-hero__title">{{ hero.title }}</h1>{% endif %}
+        {% if hero and hero.subtitle %}<div class="page-hero__subtitle">{{ hero.subtitle }}</div>{% endif %}
     </div>
 </section>
 
