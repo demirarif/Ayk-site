@@ -145,12 +145,14 @@ header {
 }
 
 .page-hero__logo {
-    width: min(360px, 72vw);
-    max-height: 160px;
+    width: min(600px, 85vw);
+    max-height: 500px;
     height: auto;
     margin: 0 auto 16px;
     object-fit: contain;
     image-rendering: -webkit-optimize-contrast;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
     transform: translateZ(0);
 }
 
@@ -423,8 +425,8 @@ footer {
     .page-hero__content { padding: 28px 32px; }
     .logo img { height: 72px; }
     .page-hero__logo {
-        width: min(280px, 68vw);
-        max-height: 120px;
+        width: min(480px, 80vw);
+        max-height: 350px;
     }
     .about-wrap { flex-direction: column; }
     .practice-grid { grid-template-columns: 1fr 1fr; }

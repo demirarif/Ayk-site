@@ -799,7 +799,7 @@ def init_db():
             'footer_text': '© 2026 KYA Hukuk ve Danışmanlık. Tüm hakları saklıdır.',
             'logo_url': '/Assets/logo-color.webp',
             'logo_white_url': '/Assets/logo-disi.webp',
-            'google_maps_embed': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9FMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str',
+            'google_maps_embed': 'https://www.google.com/maps?q=%C3%87ukurambar%2C+1428.+Sk.+No%3A+15%2F2%2C+06510+%C3%87ankaya%2FAnkara&z=17&output=embed',
             'whatsapp_number': '',
             'home_practice_title': 'Çalışma Alanlarımız',
             'home_practice_subtitle': 'Başlıca uzmanlık alanlarımızı keşfedin.',
@@ -860,11 +860,13 @@ def init_db():
             if row and row.value == old_val:
                 row.value = new_val
 
-        # Harita embed: eski q= parametre URL'sini embed URL'siyle değiştir
-        _MAP = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3059.424507449123!2d32.8322003!3d39.9443787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d34f0a4309eec5%3A0x77936d1cd6fe2fde!2sKYA%20HUKUK%20ve%20DANI%C5%9EMANLIK!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str'
+        # Harita embed: eski URL'leri Çukurambar adres aramalı embed'e güncelle
+        _MAP_NEW = 'https://www.google.com/maps?q=%C3%87ukurambar%2C+1428.+Sk.+No%3A+15%2F2%2C+06510+%C3%87ankaya%2FAnkara&z=17&output=embed'
         map_row = existing_settings.get('google_maps_embed')
-        if map_row and ('maps?q=' in str(map_row.value or '') or not map_row.value):
-            map_row.value = _MAP
+        if map_row:
+            _old = str(map_row.value or '')
+            if not _old or 'maps?q=' in _old or 'maps/embed?pb=' in _old:
+                map_row.value = _MAP_NEW
 
         contact_row = existing_settings.get('contact_address')
         if contact_row and contact_row.value == 'Balgat Mahallesi, Ziyabey Caddesi No: 14/8, Çankaya / ANKARA':
@@ -873,6 +875,14 @@ def init_db():
         seo_contact_row = existing_settings.get('seo_desc_iletisim')
         if seo_contact_row and seo_contact_row.value == 'KYA Hukuk ve Danışmanlık ile iletişime geçin. Ankara Balgat ofisimiz, telefon ve e-posta bilgilerimiz.':
             seo_contact_row.value = 'KYA Keleştemur Yiğit Altay Hukuk ve Danışmanlık Ofisi ile iletişime geçin. Çukurambar, Çankaya Ankara adresi, telefon ve e-posta bilgilerimiz.'
+
+        # CTA: eski sabit metinleri güncelle
+        cta_title_row = existing_settings.get('areas_cta_title')
+        if cta_title_row and cta_title_row.value in ('Hukuki Destek Almak İster Misiniz?', ''):
+            cta_title_row.value = 'Bizimle iletişime geçebilirsiniz'
+        cta_text_row = existing_settings.get('areas_cta_text')
+        if cta_text_row and cta_text_row.value == 'Uzman avukat kadromuzla randevu almak veya bilgi talep etmek için bizimle iletişime geçin.':
+            cta_text_row.value = ''
 
         # ── Hero bölümleri (tek sorguda toplu kontrol) ───────────────────────
         hero_defaults = [

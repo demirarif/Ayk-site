@@ -33,42 +33,39 @@
 <!-- Değerlerimiz -->
 {% set values_title = settings.get('about_values_title') %}
 {% if values_title is none %}{% set values_title = 'Değerlerimiz' %}{% endif %}
+{% if values_title %}
 {% set value1_title = settings.get('about_value1_title') %}
 {% if value1_title is none %}{% set value1_title = 'Adalet' %}{% endif %}
 {% set value2_title = settings.get('about_value2_title') %}
 {% if value2_title is none %}{% set value2_title = 'Güven' %}{% endif %}
 {% set value3_title = settings.get('about_value3_title') %}
 {% if value3_title is none %}{% set value3_title = 'Yenilik' %}{% endif %}
-{% set show_values = values_title or settings.about_values_subtitle or value1_title or value2_title or value3_title %}
-{% if show_values %}
 <section class="bg-light">
     <div class="container">
-        {% if values_title or settings.about_values_subtitle %}
         <div class="section-header">
-            {% if values_title %}<h2>{{ values_title }}</h2>{% endif %}
+            <h2>{{ values_title }}</h2>
             {% if settings.about_values_subtitle %}<p>{{ settings.about_values_subtitle }}</p>{% endif %}
         </div>
-        {% endif %}
         <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:36px;">
             {% if value1_title %}
             <div style="text-align:center; padding:30px 20px;">
                 <i class="fas fa-balance-scale" style="font-size:2.5rem; color:var(--bordeaux); margin-bottom:16px; display:block;"></i>
                 <h3 style="margin-bottom:10px; font-size:1.2rem;">{{ value1_title }}</h3>
-                <p style="color:#666; font-size:.93rem;">{{ settings.get('about_value1_text') or 'Her müvekkile eşit, tarafsız ve hukuka uygun yaklaşım temel ilkemizdir.' }}</p>
+                {% if settings.get('about_value1_text') %}<p style="color:#666; font-size:.93rem;">{{ settings.get('about_value1_text') }}</p>{% endif %}
             </div>
             {% endif %}
             {% if value2_title %}
             <div style="text-align:center; padding:30px 20px;">
                 <i class="fas fa-handshake" style="font-size:2.5rem; color:var(--bordeaux); margin-bottom:16px; display:block;"></i>
                 <h3 style="margin-bottom:10px; font-size:1.2rem;">{{ value2_title }}</h3>
-                <p style="color:#666; font-size:.93rem;">{{ settings.get('about_value2_text') or 'Müvekkillerimizle güvene dayalı, şeffaf ve uzun soluklu ilişkiler kuruyoruz.' }}</p>
+                {% if settings.get('about_value2_text') %}<p style="color:#666; font-size:.93rem;">{{ settings.get('about_value2_text') }}</p>{% endif %}
             </div>
             {% endif %}
             {% if value3_title %}
             <div style="text-align:center; padding:30px 20px;">
                 <i class="fas fa-lightbulb" style="font-size:2.5rem; color:var(--bordeaux); margin-bottom:16px; display:block;"></i>
                 <h3 style="margin-bottom:10px; font-size:1.2rem;">{{ value3_title }}</h3>
-                <p style="color:#666; font-size:.93rem;">{{ settings.get('about_value3_text') or 'Dinamik ve yenilikçi yaklaşımımızla müvekkillerimize rekabetçi çözümler sunuyoruz.' }}</p>
+                {% if settings.get('about_value3_text') %}<p style="color:#666; font-size:.93rem;">{{ settings.get('about_value3_text') }}</p>{% endif %}
             </div>
             {% endif %}
         </div>
