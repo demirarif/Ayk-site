@@ -907,6 +907,11 @@ def init_db():
         idx_hero = existing_heroes.get('index')
         if idx_hero and idx_hero.image_url in ('/static/uploads/Atakule3.png', '/static/uploads/Atakule3.webp'):
             idx_hero.image_url = '/Assets/Atakule3.webp'
+        # Anasayfa hero yazılarını temizle (artık admin panelinden eklenir)
+        if idx_hero and idx_hero.title == 'KELEŞTEMUR | YİĞİT | ALTAY':
+            idx_hero.title = ''
+        if idx_hero and idx_hero.subtitle == 'HUKUK VE DANIŞMANLIK':
+            idx_hero.subtitle = ''
 
         # Ekip üyeleri
         if TeamMember.query.count() == 0:
