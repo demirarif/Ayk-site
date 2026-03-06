@@ -613,14 +613,28 @@ def admin_settings():
         ('whatsapp_number', 'WhatsApp Numarası (ülke koduyla, başında + olmadan, örn: 905312345678)', 'text'),
         ('about_short', 'Kısa Tanıtım (Alt Başlık)', 'textarea'),
         ('about_subtitle', 'Hakkımızda Sayfa Alt Başlığı', 'text'),
-        ('about_value1_title', 'Değerlerimiz — 1. Başlık (boş bırakırsan gizlenir)', 'text'),
+        ('about_values_title', 'Değerlerimiz Bölüm Başlığı', 'text'),
+        ('about_values_subtitle', 'Değerlerimiz Bölüm Alt Başlığı', 'textarea'),
+        ('about_value1_title', 'Değerlerimiz — 1. Başlık', 'text'),
         ('about_value1_text', 'Değerlerimiz — 1. Metin', 'textarea'),
-        ('about_value2_title', 'Değerlerimiz — 2. Başlık (boş bırakırsan gizlenir)', 'text'),
+        ('about_value2_title', 'Değerlerimiz — 2. Başlık', 'text'),
         ('about_value2_text', 'Değerlerimiz — 2. Metin', 'textarea'),
-        ('about_value3_title', 'Değerlerimiz — 3. Başlık (boş bırakırsan gizlenir)', 'text'),
+        ('about_value3_title', 'Değerlerimiz — 3. Başlık', 'text'),
         ('about_value3_text', 'Değerlerimiz — 3. Metin', 'textarea'),
+        ('home_practice_title', 'Anasayfa Çalışma Alanları Başlığı', 'text'),
+        ('home_practice_subtitle', 'Anasayfa Çalışma Alanları Alt Başlığı', 'textarea'),
+        ('home_articles_title', 'Anasayfa Makaleler Başlığı', 'text'),
+        ('home_articles_subtitle', 'Anasayfa Makaleler Alt Başlığı', 'textarea'),
+        ('team_section_title', 'Ekibimiz Bölüm Başlığı', 'text'),
+        ('team_section_subtitle', 'Ekibimiz Bölüm Alt Başlığı', 'textarea'),
+        ('areas_section_title', 'Çalışma Alanları Bölüm Başlığı', 'text'),
+        ('areas_section_subtitle', 'Çalışma Alanları Bölüm Alt Başlığı', 'textarea'),
         ('areas_cta_title', 'Çalışma Alanları CTA Başlığı', 'text'),
-        ('areas_cta_text', 'Çalışma Alanları CTA Metin (boş bırakılabilir)', 'textarea'),
+        ('areas_cta_text', 'Çalışma Alanları CTA Metni', 'textarea'),
+        ('articles_section_title', 'Makaleler Bölüm Başlığı', 'text'),
+        ('articles_section_subtitle', 'Makaleler Bölüm Alt Başlığı', 'textarea'),
+        ('contact_section_title', 'İletişim Bölüm Başlığı', 'text'),
+        ('contact_section_subtitle', 'İletişim Bölüm Alt Başlığı', 'textarea'),
         ('logo_url', 'Logo URL (Açık Zemin - Renkli)', 'text'),
         ('logo_white_url', 'Logo URL (Koyu Zemin - Beyaz)', 'text'),
         ('footer_text', 'Footer Metin', 'textarea'),
@@ -776,11 +790,12 @@ def init_db():
 
         # ── Varsayılan ayarlar (tek sorguda toplu kontrol) ──────────────────
         defaults = {
-            'contact_address': 'Balgat Mahallesi, Ziyabey Caddesi No: 14/8, Çankaya / ANKARA',
+            'contact_address': 'Çukurambar, 1428. Sk. No: 15/2, 06510 Çankaya/Ankara',
             'contact_phone': '+90 312 123 45 67',
             'contact_email': 'info@kyahukukdanismanlik.com',
             'contact_hours': 'Pazartesi - Cuma: 09:00 - 18:00',
             'about_short': 'Ulusal ve uluslararası hukuki danışmanlık & avukatlık hizmetleri.',
+            'about_subtitle': 'Keleştemur | Yiğit | Altay Hukuk ve Danışmanlık Ofisi',
             'footer_text': '© 2026 KYA Hukuk ve Danışmanlık. Tüm hakları saklıdır.',
             'logo_url': '/Assets/logo-color.webp',
             'logo_white_url': '/Assets/logo-disi.webp',
@@ -792,10 +807,18 @@ def init_db():
             'home_articles_subtitle': 'Güncel hukuki içerikler ve makaleler.',
             'about_values_title': 'Değerlerimiz',
             'about_values_subtitle': '',
+            'about_value1_title': 'Adalet',
+            'about_value1_text': 'Her müvekkile eşit, tarafsız ve hukuka uygun yaklaşım temel ilkemizdir.',
+            'about_value2_title': 'Güven',
+            'about_value2_text': 'Müvekkillerimizle güvene dayalı, şeffaf ve uzun soluklu ilişkiler kuruyoruz.',
+            'about_value3_title': 'Yenilik',
+            'about_value3_text': 'Dinamik ve yenilikçi yaklaşımımızla müvekkillerimize rekabetçi çözümler sunuyoruz.',
             'team_section_title': 'Avukat Kadromuz',
             'team_section_subtitle': '',
             'areas_section_title': 'Çalışma Alanları',
             'areas_section_subtitle': '',
+            'areas_cta_title': 'Bizimle iletişime geçebilirsiniz',
+            'areas_cta_text': '',
             'articles_section_title': 'Güncel Makaleler',
             'articles_section_subtitle': '',
             'contact_section_title': 'İletişim',
@@ -806,7 +829,7 @@ def init_db():
             'seo_desc_ekibimiz':   'KYA Hukuk avukat kadrosu: Av. Mehmet Emre Yiğit, Av. Tevfik Keleştemur, Av. Direnç Onat Altay ve diğer uzman hukukçularımız.',
             'seo_desc_faaliyet':   'KYA Hukuk çalışma alanları: Ticaret Hukuku, Ceza Hukuku, İdare Hukuku, Sözleşmeler, Fikri Mülkiyet ve daha fazlası.',
             'seo_desc_makaleler':  'KYA Hukuk güncel hukuki makaleler, içtihat değerlendirmeleri ve hukuki bilgi yazıları.',
-            'seo_desc_iletisim':   'KYA Hukuk ve Danışmanlık ile iletişime geçin. Ankara Balgat ofisimiz, telefon ve e-posta bilgilerimiz.',
+            'seo_desc_iletisim':   'KYA Keleştemur Yiğit Altay Hukuk ve Danışmanlık Ofisi ile iletişime geçin. Çukurambar, Çankaya Ankara adresi, telefon ve e-posta bilgilerimiz.',
         }
         # Bir sorguda mevcut tüm key'leri çek; döngü içinde tek tek sorgu yok
         existing_settings = {s.key: s for s in SiteSetting.query.all()}
@@ -842,6 +865,14 @@ def init_db():
         map_row = existing_settings.get('google_maps_embed')
         if map_row and ('maps?q=' in str(map_row.value or '') or not map_row.value):
             map_row.value = _MAP
+
+        contact_row = existing_settings.get('contact_address')
+        if contact_row and contact_row.value == 'Balgat Mahallesi, Ziyabey Caddesi No: 14/8, Çankaya / ANKARA':
+            contact_row.value = 'Çukurambar, 1428. Sk. No: 15/2, 06510 Çankaya/Ankara'
+
+        seo_contact_row = existing_settings.get('seo_desc_iletisim')
+        if seo_contact_row and seo_contact_row.value == 'KYA Hukuk ve Danışmanlık ile iletişime geçin. Ankara Balgat ofisimiz, telefon ve e-posta bilgilerimiz.':
+            seo_contact_row.value = 'KYA Keleştemur Yiğit Altay Hukuk ve Danışmanlık Ofisi ile iletişime geçin. Çukurambar, Çankaya Ankara adresi, telefon ve e-posta bilgilerimiz.'
 
         # ── Hero bölümleri (tek sorguda toplu kontrol) ───────────────────────
         hero_defaults = [

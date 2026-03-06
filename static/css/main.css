@@ -57,7 +57,11 @@ header {
     padding: 0 24px;
 }
 
-.logo img { height: 70px; width: auto; }
+.logo img {
+    height: 82px;
+    width: auto;
+    object-fit: contain;
+}
 
 .nav-links { display: flex; gap: 30px; }
 .nav-links a {
@@ -141,12 +145,17 @@ header {
 }
 
 .page-hero__logo {
-    width: 270px; height: auto;
+    width: min(360px, 72vw);
+    max-height: 160px;
+    height: auto;
     margin: 0 auto 16px;
+    object-fit: contain;
+    image-rendering: -webkit-optimize-contrast;
+    transform: translateZ(0);
+}
+
+.page-hero__logo--filtered {
     filter: brightness(0) invert(1);
-    image-rendering: auto;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
 }
 
 .page-hero__title {
@@ -412,7 +421,11 @@ footer {
     .nav-toggle { display: block; }
     .page-hero__title { font-size: 1.5rem; }
     .page-hero__content { padding: 28px 32px; }
-    .page-hero__logo { width: 170px; }
+    .logo img { height: 72px; }
+    .page-hero__logo {
+        width: min(280px, 68vw);
+        max-height: 120px;
+    }
     .about-wrap { flex-direction: column; }
     .practice-grid { grid-template-columns: 1fr 1fr; }
     .team-card { flex-direction: column; }

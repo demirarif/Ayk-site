@@ -44,15 +44,15 @@
 <form method="POST" action="{{ url_for('admin_settings') }}" style="max-width:820px;">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="card">
-    <div class="card-header"><h2><i class="fa-solid fa-circle-info"></i> Hakkımızda (Kısa)</h2></div>
+    <div class="card-header"><h2><i class="fa-solid fa-circle-info"></i> Hakkımızda</h2></div>
     <div class="form-row">
       <label>Kısa Tanıtım Metni (Anasayfa)</label>
       <textarea name="about_short" rows="3">{{ settings.get('about_short','') }}</textarea>
     </div>
     <div class="form-row" style="margin-top:12px;">
-      <label>Hakkımızda Sayfa Alt Başlığı</label>
+      <label>Hakkımızda Sayfası Alt Başlığı</label>
       <input type="text" name="about_subtitle" value="{{ settings.get('about_subtitle','') }}" placeholder="Keleştemur | Yiğit | Altay Hukuk ve Danışmanlık Ofisi">
-      <p class="hint">Hakkımızda sayfasındaki metin bloğunun üzerindeki başlık. Boş bırakırsan varsayılan gösterilir.</p>
+      <p class="hint">Boş bırakırsanız bu alt başlık sitede gizlenir.</p>
     </div>
     <button type="submit" class="btn btn-primary btn-sm" style="margin-top:8px;">
       <i class="fa-solid fa-floppy-disk"></i> Kaydet
@@ -60,20 +60,27 @@
   </div>
 </form>
 
-{# ── Değerlerimiz ─────────────────────────────────────── #}
 <form method="POST" action="{{ url_for('admin_settings') }}" style="max-width:820px;">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="card">
-    <div class="card-header"><h2><i class="fa-solid fa-star"></i> Değerlerimiz (Hakkımızda Sayfası)</h2></div>
-    <p class="hint" style="margin-bottom:16px;">Başlık alanını <strong>boş bırakırsan</strong> o değer sitede gizlenir (silinmiş gibi davranır). Varsayılanlar: Adalet, Güven, Yenilik.</p>
-    <div class="form-cols">
+    <div class="card-header"><h2><i class="fa-solid fa-star"></i> Değerlerimiz</h2></div>
+    <div class="form-row">
+      <label>Bölüm Başlığı</label>
+      <input type="text" name="about_values_title" value="{{ settings.get('about_values_title','') }}" placeholder="Değerlerimiz">
+      <p class="hint">Boş bırakırsanız başlık gizlenir. Tüm değer başlıklarını da boş bırakırsanız bölüm tamamen gizlenir.</p>
+    </div>
+    <div class="form-row" style="margin-top:12px;">
+      <label>Bölüm Alt Başlığı</label>
+      <textarea name="about_values_subtitle" rows="2">{{ settings.get('about_values_subtitle','') }}</textarea>
+    </div>
+    <div class="form-cols" style="margin-top:12px;">
       <div class="form-row">
         <label>1. Değer Başlığı</label>
         <input type="text" name="about_value1_title" value="{{ settings.get('about_value1_title','') }}" placeholder="Adalet">
       </div>
       <div class="form-row">
         <label>1. Değer Metni</label>
-        <textarea name="about_value1_text" rows="2" placeholder="Her müvekkile eşit, tarafsız ve hukuka uygun yaklaşım...">{{ settings.get('about_value1_text','') }}</textarea>
+        <textarea name="about_value1_text" rows="2">{{ settings.get('about_value1_text','') }}</textarea>
       </div>
     </div>
     <div class="form-cols" style="margin-top:12px;">
@@ -83,7 +90,7 @@
       </div>
       <div class="form-row">
         <label>2. Değer Metni</label>
-        <textarea name="about_value2_text" rows="2" placeholder="Müvekkillerimizle güvene dayalı, şeffaf...">{{ settings.get('about_value2_text','') }}</textarea>
+        <textarea name="about_value2_text" rows="2">{{ settings.get('about_value2_text','') }}</textarea>
       </div>
     </div>
     <div class="form-cols" style="margin-top:12px;">
@@ -93,7 +100,7 @@
       </div>
       <div class="form-row">
         <label>3. Değer Metni</label>
-        <textarea name="about_value3_text" rows="2" placeholder="Dinamik ve yenilikçi yaklaşımımızla...">{{ settings.get('about_value3_text','') }}</textarea>
+        <textarea name="about_value3_text" rows="2">{{ settings.get('about_value3_text','') }}</textarea>
       </div>
     </div>
     <button type="submit" class="btn btn-primary btn-sm" style="margin-top:16px;">
@@ -102,19 +109,79 @@
   </div>
 </form>
 
-{# ── Çalışma Alanları CTA ─────────────────────────────── #}
 <form method="POST" action="{{ url_for('admin_settings') }}" style="max-width:820px;">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="card">
-    <div class="card-header"><h2><i class="fa-solid fa-bullhorn"></i> Çalışma Alanları — Alt Çağrı (CTA)</h2></div>
-    <div class="form-row">
-      <label>CTA Başlığı</label>
-      <input type="text" name="areas_cta_title" value="{{ settings.get('areas_cta_title','') }}" placeholder="Bizimle iletişime geçebilirsiniz">
-      <p class="hint">Çalışma Alanları sayfasının en altındaki çağrı başlığı. Boş bırakırsan "Bizimle iletişime geçebilirsiniz" gösterilir.</p>
+    <div class="card-header"><h2><i class="fa-solid fa-pen-to-square"></i> Bölüm Başlıkları ve Alt Metinler</h2></div>
+    <div class="form-cols">
+      <div class="form-row">
+        <label>Anasayfa Çalışma Alanları Başlığı</label>
+        <input type="text" name="home_practice_title" value="{{ settings.get('home_practice_title','') }}">
+      </div>
+      <div class="form-row">
+        <label>Anasayfa Çalışma Alanları Alt Başlığı</label>
+        <textarea name="home_practice_subtitle" rows="2">{{ settings.get('home_practice_subtitle','') }}</textarea>
+      </div>
     </div>
-    <div class="form-row" style="margin-top:12px;">
-      <label>CTA Açıklama Metni (isteğe bağlı)</label>
-      <textarea name="areas_cta_text" rows="2" placeholder="Boş bırakırsan bu alan gösterilmez.">{{ settings.get('areas_cta_text','') }}</textarea>
+    <div class="form-cols" style="margin-top:12px;">
+      <div class="form-row">
+        <label>Anasayfa Makaleler Başlığı</label>
+        <input type="text" name="home_articles_title" value="{{ settings.get('home_articles_title','') }}">
+      </div>
+      <div class="form-row">
+        <label>Anasayfa Makaleler Alt Başlığı</label>
+        <textarea name="home_articles_subtitle" rows="2">{{ settings.get('home_articles_subtitle','') }}</textarea>
+      </div>
+    </div>
+    <div class="form-cols" style="margin-top:12px;">
+      <div class="form-row">
+        <label>Ekibimiz Bölüm Başlığı</label>
+        <input type="text" name="team_section_title" value="{{ settings.get('team_section_title','') }}">
+      </div>
+      <div class="form-row">
+        <label>Ekibimiz Bölüm Alt Başlığı</label>
+        <textarea name="team_section_subtitle" rows="2">{{ settings.get('team_section_subtitle','') }}</textarea>
+      </div>
+    </div>
+    <div class="form-cols" style="margin-top:12px;">
+      <div class="form-row">
+        <label>Çalışma Alanları Bölüm Başlığı</label>
+        <input type="text" name="areas_section_title" value="{{ settings.get('areas_section_title','') }}">
+      </div>
+      <div class="form-row">
+        <label>Çalışma Alanları Bölüm Alt Başlığı</label>
+        <textarea name="areas_section_subtitle" rows="2">{{ settings.get('areas_section_subtitle','') }}</textarea>
+      </div>
+    </div>
+    <div class="form-cols" style="margin-top:12px;">
+      <div class="form-row">
+        <label>Çalışma Alanları CTA Başlığı</label>
+        <input type="text" name="areas_cta_title" value="{{ settings.get('areas_cta_title','') }}" placeholder="Bizimle iletişime geçebilirsiniz">
+      </div>
+      <div class="form-row">
+        <label>Çalışma Alanları CTA Metni</label>
+        <textarea name="areas_cta_text" rows="2" placeholder="Boş bırakırsanız açıklama gizlenir.">{{ settings.get('areas_cta_text','') }}</textarea>
+      </div>
+    </div>
+    <div class="form-cols" style="margin-top:12px;">
+      <div class="form-row">
+        <label>Makaleler Bölüm Başlığı</label>
+        <input type="text" name="articles_section_title" value="{{ settings.get('articles_section_title','') }}">
+      </div>
+      <div class="form-row">
+        <label>Makaleler Bölüm Alt Başlığı</label>
+        <textarea name="articles_section_subtitle" rows="2">{{ settings.get('articles_section_subtitle','') }}</textarea>
+      </div>
+    </div>
+    <div class="form-cols" style="margin-top:12px;">
+      <div class="form-row">
+        <label>İletişim Bölüm Başlığı</label>
+        <input type="text" name="contact_section_title" value="{{ settings.get('contact_section_title','') }}">
+      </div>
+      <div class="form-row">
+        <label>İletişim Bölüm Alt Başlığı</label>
+        <textarea name="contact_section_subtitle" rows="2">{{ settings.get('contact_section_subtitle','') }}</textarea>
+      </div>
     </div>
     <button type="submit" class="btn btn-primary btn-sm" style="margin-top:8px;">
       <i class="fa-solid fa-floppy-disk"></i> Kaydet

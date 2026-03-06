@@ -4,24 +4,24 @@
 {% block extra_head %}
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "LegalService",
-  "name": "KYA Keleştemur Yiğit Altay Hukuk ve Danışmanlık Ofisi",
-  "alternateName": "KYA Hukuk",
-  "url": "https://www.kyahukukdanismanlik.site",
-  "logo": "https://www.kyahukukdanismanlik.site/Assets/logo-color.webp",
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "Çukurambar, 1428. Sk. No: 15/2",
-    "addressLocality": "Çankaya",
-    "addressRegion": "Ankara",
-    "postalCode": "06510",
-    "addressCountry": "TR"
-  },
-  "telephone": "{{ settings.get('contact_phone','') }}",
-  "email": "{{ settings.get('contact_email','') }}",
-  "openingHours": "{{ settings.get('contact_hours','') }}",
-  "description": "KYA Keleştemur | Yiğit | Altay Hukuk ve Danışmanlık Ofisi, Ankara Çankaya'da hizmet vermektedir."
+    "@context": "https://schema.org",
+    "@type": "LegalService",
+    "name": "KYA KELEŞTEMUR YİĞİT ALTAY",
+    "alternateName": "KYA Hukuk ve Danışmanlık Ofisi",
+    "url": "https://www.kyahukukdanismanlik.site",
+    "logo": "https://www.kyahukukdanismanlik.site/Assets/logo-color.webp",
+    "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Çukurambar, 1428. Sk. No: 15/2",
+        "postalCode": "06510",
+        "addressLocality": "Çankaya",
+        "addressRegion": "Ankara",
+        "addressCountry": "TR"
+    },
+    "telephone": "{{ settings.get('contact_phone','') }}",
+    "email": "{{ settings.get('contact_email','') }}",
+    "openingHours": "{{ settings.get('contact_hours','') }}",
+    "description": "KYA Keleştemur Yiğit Altay Hukuk ve Danışmanlık Ofisi, Çukurambar Çankaya Ankara adresinde hizmet vermektedir."
 }
 </script>
 {% endblock %}
