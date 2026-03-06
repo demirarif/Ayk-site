@@ -1,6 +1,31 @@
 {% extends "base.html" %}
 {% block title %}İletişim — KYA Hukuk & Danışmanlık{% endblock %}
 
+{% block extra_head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LegalService",
+  "name": "KYA Keleştemur Yiğit Altay Hukuk ve Danışmanlık Ofisi",
+  "alternateName": "KYA Hukuk",
+  "url": "https://www.kyahukukdanismanlik.site",
+  "logo": "https://www.kyahukukdanismanlik.site/Assets/logo-color.webp",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Çukurambar, 1428. Sk. No: 15/2",
+    "addressLocality": "Çankaya",
+    "addressRegion": "Ankara",
+    "postalCode": "06510",
+    "addressCountry": "TR"
+  },
+  "telephone": "{{ settings.get('contact_phone','') }}",
+  "email": "{{ settings.get('contact_email','') }}",
+  "openingHours": "{{ settings.get('contact_hours','') }}",
+  "description": "KYA Keleştemur | Yiğit | Altay Hukuk ve Danışmanlık Ofisi, Ankara Çankaya'da hizmet vermektedir."
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <section class="page-hero">
     {% set hero_bg = hero.image_url if hero and hero.image_url else 'https://images.unsplash.com/photo-1497366412874-3415097a27e7?w=1600&q=80' %}

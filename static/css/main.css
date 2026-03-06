@@ -141,9 +141,12 @@ header {
 }
 
 .page-hero__logo {
-    width: 200px; height: auto;
+    width: 270px; height: auto;
     margin: 0 auto 16px;
     filter: brightness(0) invert(1);
+    image-rendering: auto;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 .page-hero__title {
@@ -409,7 +412,7 @@ footer {
     .nav-toggle { display: block; }
     .page-hero__title { font-size: 1.5rem; }
     .page-hero__content { padding: 28px 32px; }
-    .page-hero__logo { width: 140px; }
+    .page-hero__logo { width: 170px; }
     .about-wrap { flex-direction: column; }
     .practice-grid { grid-template-columns: 1fr 1fr; }
     .team-card { flex-direction: column; }

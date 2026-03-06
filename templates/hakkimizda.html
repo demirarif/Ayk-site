@@ -16,7 +16,7 @@
     <div class="container">
         <div class="about-wrap">
             <div class="about-text">
-                <h3>Profesyonel Çözüm Ortağınız</h3>
+                <h3>{{ settings.about_subtitle or 'Keleştemur | Yiğit | Altay Hukuk ve Danışmanlık Ofisi' }}</h3>
                 <p>Keleştemur | Yiğit | Altay Hukuk ve Danışmanlık Ofisi, 2020 yılında Av. Mehmet Emre Yiğit, Av. Tevfik Keleştemur ve Av. Direnç Onat Altay tarafından Ankara'da kurulmuştur. KYA Hukuk ve Danışmanlık Ofisi, merkezinin Ankara'da olmasının yanında İstanbul, İzmir, Kayseri gibi Türkiye'nin önemli ticari kentlerinde müvekkillerine Türkçe, İngilizce ve Rusça dillerinde hizmet vermektedir.</p>
                 <p>Genç ve dinamik kadrosuyla müvekkillerine yenilikçi bir hizmet sunan KYA Hukuk ve Danışmanlık Ofisi, icra hukuku, ticari işletme hukuku, şirketler hukuku, kıymetli evrak hukuku, bankacılık hukuku, iş hukuku, vergi hukuku, sigorta hukuku, sağlık hukuku, sözleşmeler hukuku, fikri mülkiyet hukuku, kişisel verilerin korunması hukuku, idare hukuku başta olmak üzere müvekkillerine birçok alanda ulusal ve uluslararası uyuşmazlık çözümünde hukuki danışmanlık ve avukatlık hizmeti vermektedir.</p>
                 <p>KYA Hukuk ve Danışmanlık Ofisi, hizmetlerini müvekkillerinin değişen ihtiyaçlarına uygun olarak geliştirmeyi, müvekkillerine yenilikçi ve kaliteli hizmetler sunmayı misyon edinmiştir. KYA tüm mesleki faaliyetlerini adil, özgür ve demokratik bir toplum düzenine kavuşma saikine odaklamıştır.</p>
@@ -36,21 +36,33 @@
             {% if settings.about_values_subtitle %}<p>{{ settings.about_values_subtitle }}</p>{% endif %}
         </div>
         <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:36px;">
+            {% set v1 = settings.get('about_value1_title') %}
+            {% if v1 is none %}{% set v1 = 'Adalet' %}{% endif %}
+            {% if v1 %}
             <div style="text-align:center; padding:30px 20px;">
                 <i class="fas fa-balance-scale" style="font-size:2.5rem; color:var(--bordeaux); margin-bottom:16px; display:block;"></i>
-                <h3 style="margin-bottom:10px; font-size:1.2rem;">Adalet</h3>
-                <p style="color:#666; font-size:.93rem;">Her müvekkile eşit, tarafsız ve hukuka uygun yaklaşım temel ilkemizdir.</p>
+                <h3 style="margin-bottom:10px; font-size:1.2rem;">{{ v1 }}</h3>
+                <p style="color:#666; font-size:.93rem;">{{ settings.get('about_value1_text') or 'Her müvekkile eşit, tarafsız ve hukuka uygun yaklaşım temel ilkemizdir.' }}</p>
             </div>
+            {% endif %}
+            {% set v2 = settings.get('about_value2_title') %}
+            {% if v2 is none %}{% set v2 = 'Güven' %}{% endif %}
+            {% if v2 %}
             <div style="text-align:center; padding:30px 20px;">
                 <i class="fas fa-handshake" style="font-size:2.5rem; color:var(--bordeaux); margin-bottom:16px; display:block;"></i>
-                <h3 style="margin-bottom:10px; font-size:1.2rem;">Güven</h3>
-                <p style="color:#666; font-size:.93rem;">Müvekkillerimizle güvene dayalı, şeffaf ve uzun soluklu ilişkiler kuruyoruz.</p>
+                <h3 style="margin-bottom:10px; font-size:1.2rem;">{{ v2 }}</h3>
+                <p style="color:#666; font-size:.93rem;">{{ settings.get('about_value2_text') or 'Müvekkillerimizle güvene dayalı, şeffaf ve uzun soluklu ilişkiler kuruyoruz.' }}</p>
             </div>
+            {% endif %}
+            {% set v3 = settings.get('about_value3_title') %}
+            {% if v3 is none %}{% set v3 = 'Yenilik' %}{% endif %}
+            {% if v3 %}
             <div style="text-align:center; padding:30px 20px;">
                 <i class="fas fa-lightbulb" style="font-size:2.5rem; color:var(--bordeaux); margin-bottom:16px; display:block;"></i>
-                <h3 style="margin-bottom:10px; font-size:1.2rem;">Yenilik</h3>
-                <p style="color:#666; font-size:.93rem;">Dinamik ve yenilikçi yaklaşımımızla müvekkillerimize rekabetçi çözümler sunuyoruz.</p>
+                <h3 style="margin-bottom:10px; font-size:1.2rem;">{{ v3 }}</h3>
+                <p style="color:#666; font-size:.93rem;">{{ settings.get('about_value3_text') or 'Dinamik ve yenilikçi yaklaşımımızla müvekkillerimize rekabetçi çözümler sunuyoruz.' }}</p>
             </div>
+            {% endif %}
         </div>
     </div>
 </section>

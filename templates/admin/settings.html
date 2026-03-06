@@ -49,6 +49,73 @@
       <label>Kısa Tanıtım Metni (Anasayfa)</label>
       <textarea name="about_short" rows="3">{{ settings.get('about_short','') }}</textarea>
     </div>
+    <div class="form-row" style="margin-top:12px;">
+      <label>Hakkımızda Sayfa Alt Başlığı</label>
+      <input type="text" name="about_subtitle" value="{{ settings.get('about_subtitle','') }}" placeholder="Keleştemur | Yiğit | Altay Hukuk ve Danışmanlık Ofisi">
+      <p class="hint">Hakkımızda sayfasındaki metin bloğunun üzerindeki başlık. Boş bırakırsan varsayılan gösterilir.</p>
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm" style="margin-top:8px;">
+      <i class="fa-solid fa-floppy-disk"></i> Kaydet
+    </button>
+  </div>
+</form>
+
+{# ── Değerlerimiz ─────────────────────────────────────── #}
+<form method="POST" action="{{ url_for('admin_settings') }}" style="max-width:820px;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="card">
+    <div class="card-header"><h2><i class="fa-solid fa-star"></i> Değerlerimiz (Hakkımızda Sayfası)</h2></div>
+    <p class="hint" style="margin-bottom:16px;">Başlık alanını <strong>boş bırakırsan</strong> o değer sitede gizlenir (silinmiş gibi davranır). Varsayılanlar: Adalet, Güven, Yenilik.</p>
+    <div class="form-cols">
+      <div class="form-row">
+        <label>1. Değer Başlığı</label>
+        <input type="text" name="about_value1_title" value="{{ settings.get('about_value1_title','') }}" placeholder="Adalet">
+      </div>
+      <div class="form-row">
+        <label>1. Değer Metni</label>
+        <textarea name="about_value1_text" rows="2" placeholder="Her müvekkile eşit, tarafsız ve hukuka uygun yaklaşım...">{{ settings.get('about_value1_text','') }}</textarea>
+      </div>
+    </div>
+    <div class="form-cols" style="margin-top:12px;">
+      <div class="form-row">
+        <label>2. Değer Başlığı</label>
+        <input type="text" name="about_value2_title" value="{{ settings.get('about_value2_title','') }}" placeholder="Güven">
+      </div>
+      <div class="form-row">
+        <label>2. Değer Metni</label>
+        <textarea name="about_value2_text" rows="2" placeholder="Müvekkillerimizle güvene dayalı, şeffaf...">{{ settings.get('about_value2_text','') }}</textarea>
+      </div>
+    </div>
+    <div class="form-cols" style="margin-top:12px;">
+      <div class="form-row">
+        <label>3. Değer Başlığı</label>
+        <input type="text" name="about_value3_title" value="{{ settings.get('about_value3_title','') }}" placeholder="Yenilik">
+      </div>
+      <div class="form-row">
+        <label>3. Değer Metni</label>
+        <textarea name="about_value3_text" rows="2" placeholder="Dinamik ve yenilikçi yaklaşımımızla...">{{ settings.get('about_value3_text','') }}</textarea>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm" style="margin-top:16px;">
+      <i class="fa-solid fa-floppy-disk"></i> Kaydet
+    </button>
+  </div>
+</form>
+
+{# ── Çalışma Alanları CTA ─────────────────────────────── #}
+<form method="POST" action="{{ url_for('admin_settings') }}" style="max-width:820px;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="card">
+    <div class="card-header"><h2><i class="fa-solid fa-bullhorn"></i> Çalışma Alanları — Alt Çağrı (CTA)</h2></div>
+    <div class="form-row">
+      <label>CTA Başlığı</label>
+      <input type="text" name="areas_cta_title" value="{{ settings.get('areas_cta_title','') }}" placeholder="Bizimle iletişime geçebilirsiniz">
+      <p class="hint">Çalışma Alanları sayfasının en altındaki çağrı başlığı. Boş bırakırsan "Bizimle iletişime geçebilirsiniz" gösterilir.</p>
+    </div>
+    <div class="form-row" style="margin-top:12px;">
+      <label>CTA Açıklama Metni (isteğe bağlı)</label>
+      <textarea name="areas_cta_text" rows="2" placeholder="Boş bırakırsan bu alan gösterilmez.">{{ settings.get('areas_cta_text','') }}</textarea>
+    </div>
     <button type="submit" class="btn btn-primary btn-sm" style="margin-top:8px;">
       <i class="fa-solid fa-floppy-disk"></i> Kaydet
     </button>
